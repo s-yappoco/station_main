@@ -1,6 +1,6 @@
 # ninja log v6
 8066	9353	7522677568859220	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_v1_rom_shim_rp2040.S.obj	a773de3a59061e7a
-54	656	7533856721843189	CMakeFiles/station_main.dir/station_main.c.obj	81eff46485c2ea86
+29	648	7541411494259437	CMakeFiles/station_main.dir/station_main.c.obj	81eff46485c2ea86
 19	199	7522677488379966	pico-sdk/src/rp2040/boot_stage2/CMakeFiles/bs2_default.dir/compile_time_choice.S.obj	6388e9a19220c443
 623	706	7522677495177639	C:/pico/station_main/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.bin	fab0b4bd17e5f91b
 7585	8849	7522677564044561	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj	964ff47a5865db52
@@ -18,10 +18,10 @@
 129	554	7533832932767790	CMakeFiles/station_main.dir/stname.c.obj	34ff4f70aac3cbdd
 1007	2207	7522677498264265	CMakeFiles/station_main.dir/signboard_bmp240.c.obj	2e2eff308616cbba
 7775	9201	7522677565935042	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_init_rom_rp2040.c.obj	43f11ec2ffd47b2c
-120	594	7533856722483660	CMakeFiles/station_main.dir/station_disp.c.obj	64cecbe6a56b6d49
+94	606	7541411494908324	CMakeFiles/station_main.dir/station_disp.c.obj	64cecbe6a56b6d49
 6779	7939	7522677555980508	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_boot_lock/boot_lock.c.obj	39ed52fcc2d40b40
-160	540	7533856722883632	CMakeFiles/station_main.dir/timer_ctrl.c.obj	ce794204e4986adb
-202	512	7533856723288986	CMakeFiles/station_main.dir/trainTimetable.c.obj	d7f44f14381e9e97
+140	569	7541411495365111	CMakeFiles/station_main.dir/timer_ctrl.c.obj	ce794204e4986adb
+175	499	7541411495717678	CMakeFiles/station_main.dir/trainTimetable.c.obj	d7f44f14381e9e97
 1755	3086	7522677505748224	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdlib/stdlib.c.obj	334c2d75a4e4f522
 1900	3293	7522677507189341	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_gpio/gpio.c.obj	bce23155bd57a03a
 6120	8066	7522677549394311	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.obj	d4f20c2bd2eff1bf
@@ -30,7 +30,7 @@
 7055	8402	7522677558739538	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_aeabi_rp2040.S.obj	5409433fc34b56c9
 2326	3655	7522677511453531	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/hardware_claim/claim.c.obj	ff95c1c80851d5b0
 2505	3774	7522677513234697	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_sync/sync.c.obj	888c7977c5eba860
-81	803	7533856722083157	CMakeFiles/station_main.dir/st7789.c.obj	dbc54434791057c7
+58	894	7541411494543059	CMakeFiles/station_main.dir/st7789.c.obj	dbc54434791057c7
 8849	9951	7522677576691986	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj	cb9d0b2208b89568
 2943	4195	7522677517619983	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_irq/irq_handler_chain.S.obj	b2d3dbd734e54524
 3086	4332	7522677519047071	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_sync/sem.c.obj	daee016ac488a207
@@ -69,4 +69,4 @@
 9354	10412	7522677581725359	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_clib_interface/newlib_interface.c.obj	d237009adb363986
 9689	10661	7522677585077124	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj	27628fac51b937e8
 9497	10695	7522677583164292	CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj	94c2fd9461de7b6c
-804	1484	7533856729292091	station_main.elf	d201dbb6d39fcec9
+894	1660	7541411502914511	station_main.elf	d201dbb6d39fcec9

@@ -1597,9 +1597,9 @@ Discarded input sections
                 0x00000000       0x50 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
  .time_critical.spi_read16_blocking
                 0x00000000       0x70 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
- .text          0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
- .data          0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
- .bss           0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
+ .text          0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
+ .data          0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
+ .bss           0x00000000        0x0 C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
  .data          0x00000000        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
  .bss           0x00000000        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
  .text          0x00000000        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libg.a(libc_a-calloc.o)
@@ -2383,7 +2383,7 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
 .boot2          0x10000000      0x100
                 0x10000000                        __boot2_start__ = .
  *(.boot2)
- .boot2         0x10000000      0x100 C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
+ .boot2         0x10000000      0x100 C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
                 0x10000100                        __boot2_end__ = .
                 0x00000001                        ASSERT (((__boot2_end__ - __boot2_start__) == 0x100), ERROR: Pico second stage bootloader must be 256 bytes in size)
 
@@ -2954,7 +2954,7 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
 .iplt           0x10006178        0x0
  .iplt          0x10006178        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtbegin.o
 
-.rodata         0x10006178     0x8f54
+.rodata         0x10006178     0x9434
  *(EXCLUDE_FILE(*libm.a: *libc.a:*lib_a-mem*.o *libgcc.a:) .rodata*)
  .rodata.setDisplayMode
                 0x10006178       0x18 CMakeFiles/station_main.dir/station_main.c.obj
@@ -3029,79 +3029,79 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
                 0x1000d38c     0x1800 CMakeFiles/station_main.dir/stname.c.obj
                 0x1000d38c                STNAME_FONT24
  .rodata.line2TB
-                0x1000eb8c      0x17c CMakeFiles/station_main.dir/trainTimetable.c.obj
+                0x1000eb8c      0x3f2 CMakeFiles/station_main.dir/trainTimetable.c.obj
                 0x1000eb8c                line2TB
+ *fill*         0x1000ef7e        0x2 
  .rodata.line1TB
-                0x1000ed08      0x17c CMakeFiles/station_main.dir/trainTimetable.c.obj
-                0x1000ed08                line1TB
+                0x1000ef80      0x3e8 CMakeFiles/station_main.dir/trainTimetable.c.obj
+                0x1000ef80                line1TB
  .rodata.panic.str1.4
-                0x1000ee84       0x12 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_platform_panic/panic.c.obj
+                0x1000f368       0x12 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_platform_panic/panic.c.obj
  .rodata.timer_hardware_alarm_claim.str1.4
-                0x1000ee84       0x22 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_timer/timer.c.obj
+                0x1000f368       0x22 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_timer/timer.c.obj
  .rodata.hard_assertion_failure.str1.4
-                0x1000ee84        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime/runtime.c.obj
+                0x1000f368        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime/runtime.c.obj
  .rodata.str1.4
-                0x1000ee84       0x38 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f368       0x38 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_84
-                0x1000ee84        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f368        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_60
-                0x1000ee90        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f374        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_54
-                0x1000ee9c        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f380        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_48
-                0x1000eea8        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f38c        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_42
-                0x1000eeb4        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f398        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_34
-                0x1000eec0        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f3a4        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata.__bi_26
-                0x1000eecc        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f3b0        0xc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .rodata._ftoa.str1.4
-                0x1000eed8       0x15 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
+                0x1000f3bc       0x15 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
  .rodata._vsnprintf
-                0x1000eed8      0x19c CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
- *fill*         0x1000f074        0x4 
+                0x1000f3bc      0x19c CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
  .rodata.pow10.0
-                0x1000f078       0x50 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
+                0x1000f558       0x50 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
  .rodata.crlf_str.0
-                0x1000f0c8        0x2 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
-                0x1000f0cc                        . = ALIGN (0x4)
- *fill*         0x1000f0ca        0x2 
+                0x1000f5a8        0x2 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
+                0x1000f5ac                        . = ALIGN (0x4)
+ *fill*         0x1000f5aa        0x2 
  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.flashdata*)))
-                0x1000f0cc                        . = ALIGN (0x4)
+                0x1000f5ac                        . = ALIGN (0x4)
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x1000f0cc                        __exidx_start = .
+                0x1000f5ac                        __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x1000f0cc                        __exidx_end = .
-                0x1000f0cc                        . = ALIGN (0x4)
-                0x1000f0cc                        __binary_info_start = .
+                0x1000f5ac                        __exidx_end = .
+                0x1000f5ac                        . = ALIGN (0x4)
+                0x1000f5ac                        __binary_info_start = .
 
-.binary_info    0x1000f0cc       0x1c
+.binary_info    0x1000f5ac       0x1c
  *(.binary_info.keep.*)
  .binary_info.keep.__bi_ptr84
-                0x1000f0cc        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5ac        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr60
-                0x1000f0d0        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5b0        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr54
-                0x1000f0d4        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5b4        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr48
-                0x1000f0d8        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5b8        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr42
-                0x1000f0dc        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5bc        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr34
-                0x1000f0e0        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5c0        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  .binary_info.keep.__bi_ptr26
-                0x1000f0e4        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+                0x1000f5c4        0x4 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
  *(.binary_info.*)
-                0x1000f0e8                        __binary_info_end = .
+                0x1000f5c8                        __binary_info_end = .
 
-.rel.dyn        0x1000f0e8        0x0
- .rel.iplt      0x1000f0e8        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtbegin.o
-                0x1000f0e8                        . = ALIGN (0x4)
+.rel.dyn        0x1000f5c8        0x0
+ .rel.iplt      0x1000f5c8        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtbegin.o
+                0x1000f5c8                        . = ALIGN (0x4)
 
 .ram_vector_table
                 0x20000000       0xc0
@@ -3115,7 +3115,7 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
                 0x200000c0                        . = ALIGN (0x4)
  *(.uninitialized_data*)
 
-.data           0x200000c0      0x198 load address 0x1000f0e8
+.data           0x200000c0      0x198 load address 0x1000f5c8
                 0x200000c0                        __data_start__ = .
  *(vtable)
  *(.time_critical*)
@@ -3175,23 +3175,23 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
                 0x20000258                        . = ALIGN (0x4)
 
 .tm_clone_table
-                0x20000258        0x0 load address 0x1000f280
+                0x20000258        0x0 load address 0x1000f760
  .tm_clone_table
                 0x20000258        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtbegin.o
  .tm_clone_table
                 0x20000258        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtend.o
 
-.igot.plt       0x20000258        0x0 load address 0x1000f280
+.igot.plt       0x20000258        0x0 load address 0x1000f760
  .igot.plt      0x20000258        0x0 C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtbegin.o
 
-.tdata          0x20000258        0x0 load address 0x1000f280
+.tdata          0x20000258        0x0 load address 0x1000f760
                 0x20000258                        . = ALIGN (0x4)
  *(.tdata .tdata.* .gnu.linkonce.td.*)
                 0x20000258                        __tdata_end = .
                 0x20000258                        PROVIDE (__data_end__ = .)
-                0x1000f0e8                        __etext = LOADADDR (.data)
+                0x1000f5c8                        __etext = LOADADDR (.data)
 
-.tbss           0x20000258        0x0 load address 0x1000f280
+.tbss           0x20000258        0x0 load address 0x1000f760
                 0x20000258                        . = ALIGN (0x4)
                 0x20000258                        __bss_start__ = .
                 0x20000258                        __tls_base = .
@@ -3199,7 +3199,7 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
  *(.tcommon)
                 0x20000258                        __tls_end = .
 
-.bss            0x20000258      0x8c0 load address 0x1000f280
+.bss            0x20000258      0x8c0 load address 0x1000f760
                 0x20000258                        . = ALIGN (0x4)
                 0x20000258                        __tbss_end = .
  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.bss*)))
@@ -3279,7 +3279,7 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
  *fill*         0x20000b15        0x3 
                 0x20000b18                        __bss_end__ = .
 
-.heap           0x20000b18    0x3f4e8 load address 0x1000f280
+.heap           0x20000b18    0x3f4e8 load address 0x1000f760
                 0x20000b18                        __end__ = .
                 0x20000b18                        end = __end__
  *(.heap*)
@@ -3288,19 +3288,19 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
  *fill*         0x20001318    0x3ece8 
                 0x20040000                        __HeapLimit = .
 
-.scratch_x      0x20040000        0x0 load address 0x1000f280
+.scratch_x      0x20040000        0x0 load address 0x1000f760
                 0x20040000                        __scratch_x_start__ = .
  *(.scratch_x.*)
                 0x20040000                        . = ALIGN (0x4)
                 0x20040000                        __scratch_x_end__ = .
-                0x1000f280                        __scratch_x_source__ = LOADADDR (.scratch_x)
+                0x1000f760                        __scratch_x_source__ = LOADADDR (.scratch_x)
 
-.scratch_y      0x20041000        0x0 load address 0x1000f280
+.scratch_y      0x20041000        0x0 load address 0x1000f760
                 0x20041000                        __scratch_y_start__ = .
  *(.scratch_y.*)
                 0x20041000                        . = ALIGN (0x4)
                 0x20041000                        __scratch_y_end__ = .
-                0x1000f280                        __scratch_y_source__ = LOADADDR (.scratch_y)
+                0x1000f760                        __scratch_y_source__ = LOADADDR (.scratch_y)
 
 .stack1_dummy
  *(.stack1*)
@@ -3309,9 +3309,9 @@ LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/1
  *(.stack*)
  .stack         0x20041000      0x800 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_crt0/crt0.S.obj
 
-.flash_end      0x1000f280        0x0
+.flash_end      0x1000f760        0x0
  *(.embedded_end_block*)
-                0x1000f280                        PROVIDE (__flash_binary_end = .)
+                0x1000f760                        PROVIDE (__flash_binary_end = .)
                 0x20040000                        __StackLimit = (ORIGIN (RAM) + LENGTH (RAM))
                 0x20041000                        __StackOneTop = (ORIGIN (SCRATCH_X) + LENGTH (SCRATCH_X))
                 0x20042000                        __StackTop = (ORIGIN (SCRATCH_Y) + LENGTH (SCRATCH_Y))
@@ -3391,7 +3391,7 @@ LOAD CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_comm
 LOAD CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_clib_interface/newlib_interface.c.obj
 LOAD CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
 LOAD CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
-LOAD C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
+LOAD C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
 LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libstdc++.a
 LOAD C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libm.a
 START GROUP
@@ -3502,7 +3502,7 @@ LOAD linker stubs
  .ARM.attributes
                 0x00000728       0x2c CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
  .ARM.attributes
-                0x00000754       0x22 C:\Users\yamap\AppData\Local\Temp\cc4hwRZf.o
+                0x00000754       0x22 C:\Users\yamap\AppData\Local\Temp\cckntUJ6.o
  .ARM.attributes
                 0x00000776       0x1e C:/Users/yamap/.pico-sdk/toolchain/13_2_Rel1/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
  .ARM.attributes
@@ -3547,7 +3547,7 @@ LOAD linker stubs
  .comment       0x00000044       0x45 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
  .comment       0x00000044       0x45 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
 
-.debug_info     0x00000000    0x2486f
+.debug_info     0x00000000    0x24884
  .debug_info    0x00000000     0x24bd CMakeFiles/station_main.dir/station_main.c.obj
  .debug_info    0x000024bd      0x2bc CMakeFiles/station_main.dir/font.c.obj
  .debug_info    0x00002779      0x32e CMakeFiles/station_main.dir/signboard_bmp240.c.obj
@@ -3556,41 +3556,41 @@ LOAD linker stubs
  .debug_info    0x000095c7      0x310 CMakeFiles/station_main.dir/station_signboard.c.obj
  .debug_info    0x000098d7      0x43b CMakeFiles/station_main.dir/stname.c.obj
  .debug_info    0x00009d12      0x6be CMakeFiles/station_main.dir/timer_ctrl.c.obj
- .debug_info    0x0000a3d0      0x344 CMakeFiles/station_main.dir/trainTimetable.c.obj
- .debug_info    0x0000a714     0x2437 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_gpio/gpio.c.obj
- .debug_info    0x0000cb4b      0x1bf CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_platform_panic/panic.c.obj
- .debug_info    0x0000cd0a      0x995 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/hardware_claim/claim.c.obj
- .debug_info    0x0000d69f      0x458 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_sync/sync.c.obj
- .debug_info    0x0000daf7      0x245 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.obj
- .debug_info    0x0000dd3c     0x21a8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_irq/irq.c.obj
- .debug_info    0x0000fee4      0x15f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_sync/lock_core.c.obj
- .debug_info    0x00010043     0x2803 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_sync/mutex.c.obj
- .debug_info    0x00012846     0x495a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_time/time.c.obj
- .debug_info    0x000171a0     0x2af8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_timer/timer.c.obj
- .debug_info    0x00019c98     0x291d CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_clocks/clocks.c.obj
- .debug_info    0x0001c5b5      0x4e5 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_pll/pll.c.obj
- .debug_info    0x0001ca9a      0x248 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_ticks/ticks.c.obj
- .debug_info    0x0001cce2      0x1cc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_xosc/xosc.c.obj
- .debug_info    0x0001ceae      0x21a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime/runtime.c.obj
- .debug_info    0x0001d0c8      0x795 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime_init/runtime_init.c.obj
- .debug_info    0x0001d85d      0x780 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.obj
- .debug_info    0x0001dfdd       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.obj
- .debug_info    0x0001e000      0x50f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_bootrom/bootrom.c.obj
- .debug_info    0x0001e50f       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_divider/divider_hardware.S.obj
- .debug_info    0x0001e532       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_aeabi_rp2040.S.obj
- .debug_info    0x0001e555      0x283 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_init_rom_rp2040.c.obj
- .debug_info    0x0001e7d8       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_v1_rom_shim_rp2040.S.obj
- .debug_info    0x0001e7fb       0x24 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj
- .debug_info    0x0001e81f       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_aeabi_rp2040.S.obj
- .debug_info    0x0001e842      0x283 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_init_rom_rp2040.c.obj
- .debug_info    0x0001eac5       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_v1_rom_shim_rp2040.S.obj
- .debug_info    0x0001eae8       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
- .debug_info    0x0001eb0b      0x2b8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
- .debug_info    0x0001edc3     0x211a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
- .debug_info    0x00020edd       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_crt0/crt0.S.obj
- .debug_info    0x00020f00      0xb54 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_clib_interface/newlib_interface.c.obj
- .debug_info    0x00021a54     0x1b8f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
- .debug_info    0x000235e3     0x128c CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
+ .debug_info    0x0000a3d0      0x359 CMakeFiles/station_main.dir/trainTimetable.c.obj
+ .debug_info    0x0000a729     0x2437 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_gpio/gpio.c.obj
+ .debug_info    0x0000cb60      0x1bf CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_platform_panic/panic.c.obj
+ .debug_info    0x0000cd1f      0x995 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/hardware_claim/claim.c.obj
+ .debug_info    0x0000d6b4      0x458 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_sync/sync.c.obj
+ .debug_info    0x0000db0c      0x245 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.obj
+ .debug_info    0x0000dd51     0x21a8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_irq/irq.c.obj
+ .debug_info    0x0000fef9      0x15f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_sync/lock_core.c.obj
+ .debug_info    0x00010058     0x2803 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_sync/mutex.c.obj
+ .debug_info    0x0001285b     0x495a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/common/pico_time/time.c.obj
+ .debug_info    0x000171b5     0x2af8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_timer/timer.c.obj
+ .debug_info    0x00019cad     0x291d CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_clocks/clocks.c.obj
+ .debug_info    0x0001c5ca      0x4e5 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_pll/pll.c.obj
+ .debug_info    0x0001caaf      0x248 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_ticks/ticks.c.obj
+ .debug_info    0x0001ccf7      0x1cc CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_xosc/xosc.c.obj
+ .debug_info    0x0001cec3      0x21a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime/runtime.c.obj
+ .debug_info    0x0001d0dd      0x795 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime_init/runtime_init.c.obj
+ .debug_info    0x0001d872      0x780 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.obj
+ .debug_info    0x0001dff2       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.obj
+ .debug_info    0x0001e015      0x50f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_bootrom/bootrom.c.obj
+ .debug_info    0x0001e524       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_divider/divider_hardware.S.obj
+ .debug_info    0x0001e547       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_aeabi_rp2040.S.obj
+ .debug_info    0x0001e56a      0x283 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_init_rom_rp2040.c.obj
+ .debug_info    0x0001e7ed       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_double/double_v1_rom_shim_rp2040.S.obj
+ .debug_info    0x0001e810       0x24 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj
+ .debug_info    0x0001e834       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_aeabi_rp2040.S.obj
+ .debug_info    0x0001e857      0x283 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_init_rom_rp2040.c.obj
+ .debug_info    0x0001eada       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_float/float_v1_rom_shim_rp2040.S.obj
+ .debug_info    0x0001eafd       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
+ .debug_info    0x0001eb20      0x2b8 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj
+ .debug_info    0x0001edd8     0x211a CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_printf/printf.c.obj
+ .debug_info    0x00020ef2       0x23 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_crt0/crt0.S.obj
+ .debug_info    0x00020f15      0xb54 CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_clib_interface/newlib_interface.c.obj
+ .debug_info    0x00021a69     0x1b8f CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/pico_stdio/stdio.c.obj
+ .debug_info    0x000235f8     0x128c CMakeFiles/station_main.dir/C_/Users/yamap/.pico-sdk/sdk/2.0.0/src/rp2_common/hardware_spi/spi.c.obj
 
 .debug_abbrev   0x00000000     0x5de5
  .debug_abbrev  0x00000000      0x516 CMakeFiles/station_main.dir/station_main.c.obj
