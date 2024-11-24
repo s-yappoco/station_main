@@ -8,4 +8,5 @@ githubの/buildフォルダの中にある"station_main.uf2"ファイルを自�
 その後、raspberry pi picoにuf2ファイルを書き込むと電光掲示板向けプログラムが起動します。
 
 やり方は、youtubeに公開しています。
+やり方はこちらです。
 
