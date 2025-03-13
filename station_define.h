@@ -15,9 +15,23 @@
 #define PIN_CS			  (5)		//ディスプレイのCS  GP5	(ピン7)液晶非対応1
 #define PIN_SPI_SCK		(2)		//SPI SCK (Clock)	GP2 (ピン4)
 #define PIN_SPI_MOSI	(3)		//SPI TX (MOSI)		GP3 (ピン5)
+#define PIN_BLK       (6)   //ディスプレイのBLK バックライト制御 GP6(ピン9)
+#define PIN_POWERSAVE (23)  //PICO上のDCDCパワーセーブモード制御(0でパワーセーブ=default)
 
 #define PIN_APPBTN1		(0)		//ボタン1(1番線接近情報) GP0 (ピン0)
 #define PIN_APPBTN2		(1)		//ボタン2(2番線接近情報) GP1（ピン1)
+#define PIN_APPBTN3		(10)	//ボタン1(1番線接近情報) GP10 (ピン14) 拡張
+#define PIN_APPBTN4		(11)	//ボタン2(2番線接近情報) GP11（ピン15) 拡張
+
+
+#define PIN_AUDIOOUT  (26)  //音声出力ピンを設定 GP26(ピン31)
+#define PIN_AUDIOMUTE (16)  //音声ミュート出力 GP16(ピン21)
+
+// PWM関連
+#define CLOCK_SPEED   (125000000)   // picoのシステムクロック周波数
+#define PWM_FREQ      (100000)      // PWM周波数: 100kHz
+#define RESOLUTION    (256)         // 分解能: 0～255
+#define TIMER_USEC    (1000000/6000)// タイマーを呼び出す間隔(usec単位) 音声ファイル6khzサンプリング
 
 // ラズパイピコSPI 0を使用
 #define SPI_PORT spi0
@@ -64,17 +78,21 @@ struct time_struct{
 
 // ステートを定義する enum 型
 typedef enum {
-  NEXT_J_ST,        // 通常の日本語表示
-  NEXT_E_ST,        // 通常の英語表示
-  INFO1_J_ST,       // インフォメーション1 日本語表示
-  INFO1_E_ST,       // インフォメーション1 英語表示
-  INFO2_J_ST,       // インフォメーション2 日本語表示
-  INFO2_E_ST,       // インフォメーション2 英語表示
-  MAP_J_ST,         // 地図表示 日本語
-  MAP_E_ST,         // 地図表示 英語表示
-  APPROACH_J_ST,    // 電車がまいります
-  APPROACH_E_ST,    // Train approaching
-  NEXT_STATION_ST   // 次は鶯谷駅に停車します
+  NEXT_J_ST,            // 通常の日本語表示
+  NEXT_E_ST,            // 通常の英語表示
+  INFO1_J_ST,           // インフォメーション1 日本語表示
+  INFO1_E_ST,           // インフォメーション1 英語表示
+  INFO2_J_ST,           // インフォメーション2 日本語表示
+  INFO2_E_ST,           // インフォメーション2 英語表示
+  MAP_J_ST,             // 地図表示 日本語
+  MAP_E_ST,             // 地図表示 英語表示
+  APPROACH_J_ST,        // 電車がまいります
+  APPROACH_E_ST,        // Train approaching
+  NEXT_STATION_ST,      // 次は鶯谷駅に停車します
+  NEST_ST_SILENT1_ST,   // 音声無音状態1（扉が開いた状態を想定）
+  NEXT_ST_BELL,         // チャイム鳴動中
+  NEXT_ST_ANNOUNCE,     // 1番線、ドアが閉まります。
+  NEST_ST_SILENT2_ST,   // 音声無音状態2（扉が閉まって、発車する状態を想定）
 } station_state;
 
 typedef enum{

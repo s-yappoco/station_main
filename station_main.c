@@ -6,6 +6,8 @@
 // include
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
+#include "pico/multicore.h"
+#include "hardware/pwm.h"
 #include <stdio.h>
 
 #include "station_define.h"
@@ -16,6 +18,10 @@
 #include "station_signboard.h"
 #include "trainTimetable.h"
 #include "stname.h"
+#include "core1_sound.h"
+#include "sounddata.h"
+#include "button.h"
+
 
 //プロトタイプ宣言
 
@@ -51,6 +57,11 @@ void drawScrollText(struct line_st *st);
 // グローバル変数
 uint8_t		isBlinkOn = 1;		// 文字列点滅用
 bool        isChangeByTime;		// 次の電車に移行する手段を時間にするか、ボタンにするかのフラグ
+// 排他処理用のセマフォ
+semaphore_t sem;
+// 音声鳴動ステータスの定義
+struct sound_sts line1Soundsts;  // 1番線用
+struct sound_sts line2Soundsts;  // 2番専用
 
 ///////////////////////////////////////////////
 // メイン関数
@@ -95,19 +106,43 @@ int main() {
     gpio_init(LED_PIN);
     gpio_init(PIN_APPBTN1);         // 1番線用電車接近ボタン
     gpio_init(PIN_APPBTN2);         // 2番線用電車接近ボタン
+    gpio_init(PIN_APPBTN3);         // 1番線用電車接近ボタン　拡張
+    gpio_init(PIN_APPBTN4);         // 2番線用電車接近ボタン　拡張
+    gpio_init(PIN_POWERSAVE);       // DCDCパワーセーブ制御
+    gpio_init(PIN_AUDIOMUTE);       // 音声ミュート制御ピン(highでミュート)
+    gpio_init(PIN_BLK);             // バックライト制御ピン（highで点灯)
+
 
     //入出力方向設定
-    gpio_set_dir(PIN_RST, GPIO_OUT);    // RSTピン出力
-    gpio_set_dir(PIN_DC, GPIO_OUT);     // DCピン出力
-    gpio_set_dir(LED_PIN, GPIO_OUT);    // オンボードLED出力
-    gpio_set_dir(PIN_APPBTN1, GPIO_IN); // ボタン入力
-    gpio_set_dir(PIN_APPBTN2, GPIO_IN); // ボタン入力
-    //プルアップ設定
+    gpio_set_dir(PIN_RST, GPIO_OUT);        // RSTピン出力
+    gpio_set_dir(PIN_DC, GPIO_OUT);         // DCピン出力
+    gpio_set_dir(LED_PIN, GPIO_OUT);        // オンボードLED出力
+    gpio_set_dir(PIN_APPBTN1, GPIO_IN);     // ボタン入力
+    gpio_set_dir(PIN_APPBTN2, GPIO_IN);     // ボタン入力
+    gpio_set_dir(PIN_APPBTN3, GPIO_IN);     // ボタン入力 拡張
+    gpio_set_dir(PIN_APPBTN4, GPIO_IN);     // ボタン入力 拡張
+    gpio_set_dir(PIN_POWERSAVE, GPIO_OUT);  // DCDCパワーセーブ制御
+    gpio_set_dir(PIN_AUDIOMUTE,GPIO_OUT);   // 音声ミュート制御ピン(highでミュート)
+    gpio_set_dir(PIN_BLK, GPIO_OUT);        // バックライト制御ピン (highで点灯)
+    
+    // プルアップ設定
     gpio_pull_up(PIN_APPBTN1);      // ボタン入力ピンをpull up設定
     gpio_pull_up(PIN_APPBTN2);      // ボタン入力ピンをpull up設定
+    gpio_pull_up(PIN_APPBTN3);      // ボタン入力ピンをpull up設定
+    gpio_pull_up(PIN_APPBTN4);      // ボタン入力ピンをpull up設定
+
+    // 初期値出力
+    gpio_put(PIN_AUDIOMUTE,1);          // ミュート出力
+    gpio_put(PIN_BLK,1);                // ディスプレイバックライト点灯
 
     // スタンダードIO初期設定
     stdio_init_all();
+
+    //DCDCパワーセーブモード制御
+    gpio_put(PIN_POWERSAVE,1);      // ノイズ対策のためパワーセーブをOFFにする(highでオフ)
+                                    // デフォルトは基板上でプルダウンされている(lowでセーブモード)
+
+
 
     ///////////////////////////////////////////
     // ST7789ディスプレイ初期設定
@@ -152,7 +187,7 @@ int main() {
 
     locateLcdPrintf(0,5);
     setColorLcdPrintf(LCD_CYN,LCD_BLK);
-    printfSt7789("ver 1.00a"); 
+    printfSt7789("ver 9.00b"); 
 
     locateLcdPrintf(0,10);
     setColorLcdPrintf(LCD_WHT,LCD_BLK);
@@ -164,7 +199,7 @@ int main() {
 
     // ATOSモード切替
     // ボタンを押下していなかったら、時間切り替えモードとする
-    if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0)
+    if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0 || gpio_get(PIN_APPBTN3)==0 || gpio_get(PIN_APPBTN4)==0)
         isChangeByTime = false;
     else
         isChangeByTime = true;
@@ -189,6 +224,11 @@ int main() {
 
     // 画面を黒で塗りつぶす
     fillScreenSt7789(LCD_BLK); // BLACK
+
+    // ボタンフラグクリア
+    for (i=0; i<MAX_BUTTONS; i++){
+        clear_button_released_flag(i);
+    }
 
     ///////////////////////////////////////////
     // 変数定義
@@ -261,6 +301,12 @@ int main() {
         line2.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
     }
 
+
+    ///////////////////////////////////////////
+    // 音声データ初期値指定
+    ///////////////////////////////////////////
+    line1Soundsts.sounddata = SOUND_NO1;
+
     ///////////////////////////////////////////
     // タイマー割り込み
     ///////////////////////////////////////////
@@ -275,7 +321,7 @@ int main() {
     // タイマーを0にリセット
     clear100msecTimer();
 
-    
+   
     ///////////////////////////////////////////
     // 画面初期表示
     ///////////////////////////////////////////
@@ -283,6 +329,24 @@ int main() {
 	drawBMP_B(&BMP_PLT_UP[0], &BMP_DAT_UP[0], 0 ,line1.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
     // 看板表示(車線2)
 	drawBMP_B(&BMP_PLT_DOWN[0], &BMP_DAT_DOWN[0], 0 ,line2.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
+
+    ///////////////////////////////////////////
+    // マルチタスク処理実行
+    ///////////////////////////////////////////
+    // セマフォを初期化
+    sem_init(&sem, 1, 1);
+
+    // core1で動作させる関数を実行する。
+    multicore_launch_core1(core1_main);
+
+    // デバッグ
+    // while(true){
+    //     // 例: LEDを点滅させる
+    //     gpio_put(LED_PIN, 1);
+    //     sleep_ms(50);
+    //     gpio_put(LED_PIN, 0);
+    //     sleep_ms(50);
+    // }
 
     ///////////////////////////////////////////
     // メインループ
@@ -386,13 +450,20 @@ int main() {
 
                     //デバッグ：ボタンを押下したらLED点灯
                     //green LED
+                    //if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0){
+                    //    gpio_put(LED_PIN,1);
+                    //}else{
+                    //    gpio_put(LED_PIN,0);
+                    //}
+                    
                     if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0){
-                        gpio_put(LED_PIN,1);
-                    }else{
-                        gpio_put(LED_PIN,0);
+                        line1Soundsts.sounddata = SOUND_NO1;
                     }
-                    // デバッグここまで
 
+                    
+                    // デバッグここまで                  
+                    
+                    
                     station_prosess = DO_STATE1;
                     break;
                 default :
