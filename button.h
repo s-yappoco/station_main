@@ -25,4 +25,13 @@ bool is_button_released(uint8_t button_id);
 /// @param button_id 何番目のボタンをチェックするかを指定する 0～MAX_BUTTONS-1
 void clear_button_released_flag(uint8_t button_id);
 
+/// @brief 車線番号対応のボタンが押されたどうかを取得する
+/// @param line_no 車線番号　0 または　1
+/// @return どちらかのボタンが離されたときにtrue
+bool is_button_released_flag_lineno(uint8_t line_no);
+
+/// @brief 車線番号対応のボタンフラグをクリアする関数
+/// @param line_no  車線番号　0 または　1
+void clear_button_released_flag_lineno(uint8_t line_no);
+
 #endif // _BUTTON_H

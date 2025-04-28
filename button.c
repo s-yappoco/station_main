@@ -21,8 +21,8 @@ typedef struct {
 static Button buttons[MAX_BUTTONS] = {
     {PIN_APPBTN1, true, true, 0, false},    // ボタン0（GPIO0）
     {PIN_APPBTN2, true, true, 0, false},    // ボタン1（GPIO1）
-    {PIN_APPBTN3, true, true, 0, false},    // ボタン2（GPIO2）
-    {PIN_APPBTN4, true, true, 0, false}     // ボタン3（GPIO3）
+    {PIN_APPBTN3, true, true, 0, false},    // ボタン2（GPIO10）
+    {PIN_APPBTN4, true, true, 0, false}     // ボタン3（GPIO11）
 };
 
 /// @brief ボタンの状態を全てチェックする関数
@@ -69,6 +69,33 @@ bool is_button_released(uint8_t button_id) {
 void clear_button_released_flag(uint8_t button_id) {
     if (button_id < MAX_BUTTONS) {
         buttons[button_id].button_released_flag = false;
+    }
+}
+
+/// @brief 車線番号対応のボタンが押されたどうかを取得する
+/// @param line_no 車線番号　0 または　1
+/// @return どちらかのボタンが離されたときにtrue
+bool is_button_released_flag_lineno(uint8_t line_no){
+    if(line_no == 0){
+        // 車線1対応のボタンが離された
+        return (buttons[0].button_released_flag || buttons[2].button_released_flag);
+    } else {
+        // 車線2対応のボタンが離された
+        return (buttons[1].button_released_flag || buttons[3].button_released_flag);
+    }
+}
+
+/// @brief 車線番号対応のボタンフラグをクリアする関数
+/// @param line_no  車線番号　0 または　1
+void clear_button_released_flag_lineno(uint8_t line_no) {
+    if (line_no == 0) {
+        // 車線1用ボタンフラグクリア
+        buttons[0].button_released_flag = false;
+        buttons[2].button_released_flag = false;
+    } else {
+        // 車線2用ボタンフラグクリア
+        buttons[1].button_released_flag = false;
+        buttons[3].button_released_flag = false;
     }
 }
 

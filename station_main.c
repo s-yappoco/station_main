@@ -60,8 +60,8 @@ bool        isChangeByTime;		// 次の電車に移行する手段を時間にす
 // 排他処理用のセマフォ
 semaphore_t sem;
 // 音声鳴動ステータスの定義
-struct sound_sts line1Soundsts;  // 1番線用
-struct sound_sts line2Soundsts;  // 2番専用
+//struct sound_sts line1Soundsts;  // 1番線用
+//struct sound_sts line2Soundsts;  // 2番専用
 
 ///////////////////////////////////////////////
 // メイン関数
@@ -253,6 +253,7 @@ int main() {
     station_prosess station_prosess = DO_DEBUG;
     
     // 構造体値初期化
+    line1.line_no = 0;                          // 車線番号（ボタン番号指定用)
     line1.posy = LINE1POSY;                     // 表示高さ設定
     line1.current_state = NEXT_J_ST;            // ステートマシン初期値
     line1.current_phase = NEXT_A_P;             // ステートフェーズ初期値
@@ -264,6 +265,7 @@ int main() {
     line1.button_gpio = PIN_APPBTN1;            // 電車接近のボタンのGIO番号
     line1.phase_timer = 0;                      // フェーズ切り替え用タイマー
     line1.language_timer = 0;                   // 言語切り替え用タイマー
+    line1.next_st_timer = 0;                    // 電車がホームに到着してから発車するまでに使用するタイマ
 
     line1.dec_min_timer = 0;                    // 残り分数減算タイマー
     line1.timetableNo = 0;                      // 次の電車の時刻表は前から何番目か
@@ -277,6 +279,7 @@ int main() {
         line1.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
     }
 
+    line2.line_no = 1;                          // 車線番号(ボタン番号指定用)
     line2.posy = LINE2POSY;                     // 表示高さ設定
     line2.current_state = NEXT_J_ST;            // ステートマシン初期値
     line2.current_phase = NEXT_A_P;             // ステートフェーズ初期値
@@ -288,6 +291,7 @@ int main() {
     line2.button_gpio = PIN_APPBTN2;            // 電車接近のボタンのGIO番号
     line2.phase_timer = 20*1;                   // フェーズ切り替え用タイマー（初期値を1番線のタイマーから1秒ずらす）
     line2.language_timer = 20*1;                // 言語切り替え用タイマー
+    line2.next_st_timer = 0;                    // 電車がホームに到着してから発車するまでに使用するタイマ
 
     line2.dec_min_timer = 20*1;                 // 残り分数減算タイマー
     line2.timetableNo = 0;                      // 次の電車の時刻表は前から何番目か
@@ -305,7 +309,7 @@ int main() {
     ///////////////////////////////////////////
     // 音声データ初期値指定
     ///////////////////////////////////////////
-    line1Soundsts.sounddata = SOUND_NO1;
+    //line1Soundsts.sounddata = SOUND_NO1;
 
     ///////////////////////////////////////////
     // タイマー割り込み
@@ -348,6 +352,87 @@ int main() {
     //     sleep_ms(50);
     // }
 
+    // debug
+    // ボタンの処理が正しいかどうか確認する
+    /*
+    while(true){
+
+        if (chk10msec()){
+
+            check_buttons(); // ボタンチェック関数呼び出し
+
+
+            locateLcdPrintf(0,6);
+            setColorLcdPrintf(LCD_WHT,LCD_BLK);
+            printfSt7789("Button check ");
+
+            if (is_button_released_flag_lineno(0)){
+                // 車線1のボタンが離された
+                locateLcdPrintf(0,7);
+                setColorLcdPrintf(LCD_WHT,LCD_BLK);
+                printfSt7789("Button 1 ");
+                clear_button_released_flag_lineno(0); // フラグをクリア
+
+            }else{
+                locateLcdPrintf(0,7);
+                setColorLcdPrintf(LCD_WHT,LCD_BLK);
+                printfSt7789("         ");
+            }
+
+            if (is_button_released_flag_lineno(1)){
+                // 車線2のボタンが離された
+                locateLcdPrintf(0,8);
+                setColorLcdPrintf(LCD_WHT,LCD_BLK);
+                printfSt7789("Button 2 ");
+                clear_button_released_flag_lineno(1); // フラグをクリア
+            }else{
+                locateLcdPrintf(0,8);
+                setColorLcdPrintf(LCD_WHT,LCD_BLK);
+                printfSt7789("         ");
+            }
+        }
+    }
+    */
+
+    //デバッグ
+    // 音声が鳴るかどうか、確認する
+    /*
+    uint8_t debugsts[] = {0,0};
+    uint8_t line_no_debug = 0;
+    while(true){
+        if (chk10msec()){
+
+            check_buttons(); // ボタンチェック関数呼び出し
+
+            for(line_no_debug=0;line_no_debug<2;line_no_debug++){
+                if (is_button_released_flag_lineno(line_no_debug)){
+                    locateLcdPrintf(0,7);
+                    setColorLcdPrintf(LCD_WHT,LCD_BLK);
+                    printfSt7789("line %d ",line_no_debug+1);
+                    switch (debugsts[line_no_debug]) {
+                        case 0:
+                            debugsts[line_no_debug] = 1;
+                            announceTrainApproach(line_no_debug);
+                            break;
+                        case 1:
+                            debugsts[line_no_debug] = 2;
+                            playDepartureMelody(line_no_debug);
+                            break;
+                        case 2:
+                            debugsts[line_no_debug] = 0;
+                            announceDoorCloseing(line_no_debug);
+                            break;
+                        default:
+                            debugsts[line_no_debug] = 0;
+                    }
+                    clear_button_released_flag_lineno(line_no_debug); // フラグをクリア
+                }
+    
+            }
+ 
+        }
+    }
+    */
     ///////////////////////////////////////////
     // メインループ
     ///////////////////////////////////////////
@@ -410,6 +495,10 @@ int main() {
 
 				// ***** その他(デバッグ用表示)タスク
                 case    DO_DEBUG:
+                    // ボタンチェック関数呼び出し。
+                    // 50msec毎に呼び出す
+                    check_buttons();
+                    
                     // 時刻がすぎたら、最初に戻る
                     if(isBefore(end_time, time_disp.timehms)){
                         // 初期化実行
@@ -457,7 +546,7 @@ int main() {
                     //}
                     
                     if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0){
-                        line1Soundsts.sounddata = SOUND_NO1;
+                        // line1Soundsts.sounddata = SOUND_NO1;
                     }
 
                     
@@ -487,6 +576,7 @@ void timer_ctrl(struct line_st *st, const struct timetable tb[]){
     st->phase_timer++;
     st->language_timer++;
     st->dec_min_timer++;
+    st->next_st_timer++;
 
     struct time_struct now_time;
     now_time = getClock();
@@ -537,8 +627,6 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
 
 	// 現時刻を取得し、構造体に格納する
 	struct time_struct now_time;
-
-	
 	now_time = getClock();
 		
 		
@@ -553,8 +641,9 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
 		
 	}else{
 		// ボタン切り替えモード
-		// GPIO状態取得
-		if (gpio_get(st->button_gpio) == 0){          // GPIOはボタン押下時にlow
+		// ボタン状態取得
+		if (is_button_released_flag_lineno(st->line_no)){
+            clear_button_released_flag_lineno(st->line_no);
 			nextTrainFlg = true;
 		} else {
 			nextTrainFlg = false;
@@ -568,7 +657,7 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
         case    NEXT_A_P:       // 通常フェーズA
             if (nextTrainFlg){
                 st->current_phase = APPROACH_P;     // インフォメーションフェーズへ移行
-                st->current_state = APPROACH_J_ST;  // 日本語表示
+                st->current_state = APPROACH_SOUND_ST;  // 接近アナウンス放送
                 st->end_flg = true;             // スクロール終了エンドフラグをセット
                 st->start_flg = false;           // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;            // フェーズ移行タイマークリア
@@ -587,7 +676,7 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
         case    INFO_P:         // インフォメーションフェーズ
             if (nextTrainFlg){
                 st->current_phase = APPROACH_P;     // インフォメーションフェーズへ移行
-                st->current_state = APPROACH_J_ST;  // 日本語表示
+                st->current_state = APPROACH_SOUND_ST;  // 接近アナウンス放送
                 st->end_flg = true;             // スクロール終了エンドフラグをセット
                 st->start_flg = false;          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;             // フェーズ移行タイマークリア
@@ -604,7 +693,7 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
         case    NEXT_B_P:       // 通常フェーズB
             if (nextTrainFlg){
                 st->current_phase = APPROACH_P;     // インフォメーションフェーズへ移行
-                st->current_state = APPROACH_J_ST;  // 日本語表示
+                st->current_state = APPROACH_SOUND_ST;  // 接近アナウンス放送
                 st->end_flg = true;             // スクロール終了エンドフラグをセット
                 st->start_flg = false;           // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;           // フェーズ移行タイマークリア
@@ -621,7 +710,7 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
         case    MAP_P:          // 地図表示フェーズ
             if (nextTrainFlg){
                 st->current_phase = APPROACH_P;     // インフォメーションフェーズへ移行
-                st->current_state = APPROACH_J_ST;  // 日本語表示
+                st->current_state = APPROACH_SOUND_ST;  // 接近アナウンス放送
                 st->end_flg = true;             // スクロール終了エンドフラグをセット
                 st->start_flg = false;           // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;           // フェーズ移行タイマークリア
@@ -635,7 +724,7 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
                 st->updatestate = true;         // ステートマシン更新フラグ
             }
             break;
-            case   APPROACH_P:     // 電車接近フェーズ
+        case   APPROACH_P:     // 電車接近フェーズ
             if (st->phase_timer > PHASETIME_B){
                 st->current_phase = NEXT_ST_P;   // 電車発車フェースへ移行
                 st->current_state = NEXT_STATION_ST; 
@@ -745,7 +834,16 @@ void switchLanguage(struct line_st *st){
                 st->language_timer = 0;
             }
 
-            break;             
+            break;
+        case    APPROACH_SOUND_ST:    //接近アナウンス放送開始
+            if (!st->updatestate){
+                st->current_state = APPROACH_J_ST;  
+                st->updatestate = true;         // ステートマシン更新フラグ 
+                st->language_timer = 0;           
+            }
+ 
+            break;
+            
         case    APPROACH_J_ST:    // 電車がまいります
             if(st->language_timer > LANGUAGETIME){
                 st->current_state = APPROACH_E_ST;  
@@ -763,10 +861,66 @@ void switchLanguage(struct line_st *st){
 
             break;
         case    NEXT_STATION_ST:  // 日本語表示のみ　切り替えなし
+            st->current_state = NEXT_ST_SILENT1_ST;
+            st->next_st_timer = 0;
+            st->updatestate = true;         // ステートマシン更新フラグ 
+            clear_button_released_flag_lineno(st->line_no);
+            break;
+
+        case    NEXT_ST_SILENT1_ST:     // 電車到着 ベル鳴動前
+            if (isChangeByTime){        // 時間切り替えモード
+                if(st->next_st_timer > SILENT1TIME){
+                    st->current_state = NEXT_ST_BELL;
+                    st->next_st_timer = 0;
+                    st->updatestate = true;         // ステートマシン更新フラグ 
+                    clear_button_released_flag_lineno(st->line_no);
+                }
+            } else {                    // ボタン切り替えモード
+                if(is_button_released_flag_lineno(st->line_no)){
+                    st->current_state = NEXT_ST_BELL;
+                    st->next_st_timer = 0;
+                    st->updatestate = true;         // ステートマシン更新フラグ 
+                    clear_button_released_flag_lineno(st->line_no);             
+                }    
+            }
+            break;
+        
+        case    NEXT_ST_BELL:           // チャイム鳴動中
+            if (isChangeByTime){        // 時間切り替えモード
+                if(isSoundStop(st->line_no)){                   // チャイムが鳴り終わったら
+                    st->current_state = NEXT_ST_ANNOUNCE;
+                    st->next_st_timer = 0;
+                    st->updatestate = true;         // ステートマシン更新フラグ
+                    clear_button_released_flag_lineno(st->line_no);                  
+                }
+            } else {                    // ボタン切り替えモード
+                if(isSoundStop(st->line_no) || is_button_released_flag_lineno(st->line_no)){                   // チャイムが鳴り終わったら
+                    st->current_state = NEXT_ST_ANNOUNCE;
+                    st->next_st_timer = 0;
+                    st->updatestate = true;         // ステートマシン更新フラグ         
+                    clear_button_released_flag_lineno(st->line_no);     
+                }         
+            }
+            break;
+
+        case    NEXT_ST_ANNOUNCE:       // 1番線、ドアが閉まります。
+            if (isSoundStop(st->line_no)){
+                st->current_state = NEXT_ST_SILENT2_ST;
+                st->next_st_timer = 0;
+                st->updatestate = true;         // ステートマシン更新フラグ                        
+            }
 
             break;
+        case    NEXT_ST_SILENT2_ST:     // 音声無音状態2（扉が閉まって、発車する状態を想定）  
+            if (st->next_st_timer > SILENT2TIME){
+
+                
+            }       
+            break;
+        
         default:
         
+
             break;
 
     }// switch(current_state)
@@ -862,7 +1016,15 @@ void drawLcdDisplay(struct line_st *st, const struct timetable tb[]){
             }
 
             break;
-            
+
+        case    APPROACH_SOUND_ST:    // 接近アナウンス放送開始
+            if (st->updatestate){
+                st->updatestate = false;         // ステートマシン更新フラグ
+                announceTrainApproach(st->line_no);  // 接近アナウンス放送開始
+
+            }
+            break;
+        
         case    APPROACH_J_ST:    // 電車がまいります
             if (st->updatestate){
                 st->updatestate = false;         // ステートマシン更新フラグ
@@ -914,6 +1076,36 @@ void drawLcdDisplay(struct line_st *st, const struct timetable tb[]){
                 drawDestination(tb[st->timetableNo+1].destination,true,st->posy + 24*3);
                 drawTime(tb[st->timetableNo+1].isDrawLeftTime,tb[st->timetableNo+1].departure_time,st->nextnexttrainmin,true,st->posy +24*3);
             }
+            break;
+        
+        case    NEXT_ST_SILENT1_ST:  // 音声無音状態1（扉が開いた状態を想定）
+            if (st->updatestate){
+                st->updatestate = false;         // ステートマシン更新フラグ
+                                                    // ドアが開いた音を入れるなら、ここ
+            }
+            break;
+
+        case    NEXT_ST_BELL:         // チャイム鳴動中
+            if (st->updatestate){
+                st->updatestate = false;         // ステートマシン更新フラグ
+                playDepartureMelody(st->line_no);
+            }
+
+            break;
+
+        case    NEXT_ST_ANNOUNCE:     // 1番線、ドアが閉まります。
+            if (st->updatestate){
+                st->updatestate = false;         // ステートマシン更新フラグ
+                announceDoorCloseing(st->line_no);
+                
+            }
+            break;
+
+        case    NEXT_ST_SILENT2_ST:   // 音声無音状態2（扉が閉まって、発車する状態を想定）
+            if (st->updatestate){
+                st->updatestate = false;         // ステートマシン更新フラグ
+                                                // ドアが閉まる音を入れるなら、ここ
+             }
             break;
         default:
         

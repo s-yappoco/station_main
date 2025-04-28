@@ -62,6 +62,8 @@
 									                  // おもちゃなので時間が早く過ぎた方が面白い
 #define SCRLDOT           (3)       // 電光掲示板を一度に何ドットスクロールさせるか
                                     // スクロールのなめらかさをとるか、速さをとるか・・・
+#define SILENT1TIME       (5*20)    // 電車が到着してから、ベルが鳴り始めるまでの時間
+#define SILENT2TIME       (5*20)    // ベルが鳴り終わってから、次の電車表示に切り替わるまでの時間
 
 // 時分秒の構造体定義
 struct time_hms{
@@ -86,13 +88,14 @@ typedef enum {
   INFO2_E_ST,           // インフォメーション2 英語表示
   MAP_J_ST,             // 地図表示 日本語
   MAP_E_ST,             // 地図表示 英語表示
+  APPROACH_SOUND_ST,    // 電車接近アナウンス放送
   APPROACH_J_ST,        // 電車がまいります
   APPROACH_E_ST,        // Train approaching
   NEXT_STATION_ST,      // 次は鶯谷駅に停車します
-  NEST_ST_SILENT1_ST,   // 音声無音状態1（扉が開いた状態を想定）
+  NEXT_ST_SILENT1_ST,   // 音声無音状態1（扉が開いた状態を想定）
   NEXT_ST_BELL,         // チャイム鳴動中
   NEXT_ST_ANNOUNCE,     // 1番線、ドアが閉まります。
-  NEST_ST_SILENT2_ST,   // 音声無音状態2（扉が閉まって、発車する状態を想定）
+  NEXT_ST_SILENT2_ST    // 音声無音状態2（扉が閉まって、発車する状態を想定）
 } station_state;
 
 typedef enum{
@@ -121,6 +124,7 @@ struct timetable{
 };
 
 struct line_st{
+  uint8_t   line_no;        // 車線番号
   uint16_t  posy;           // 上から何ドット目から表示するのか
   station_state current_state;  // ステートマシン(表示に関わる部分)
   station_phase current_phase;  // 現在のフェーズ(全体)
@@ -132,6 +136,7 @@ struct line_st{
   uint16_t  button_gpio;    // 電車接近のボタンのGIO番号
   uint16_t  phase_timer;    // フェーズ切り替えようタイマー
   uint16_t  language_timer; // 言語切り替え用タイマー
+  uint16_t  next_st_timer;  // 電車がホームに到着してから発車するまでに使用するタイマー
   uint16_t  nexttrainmin;   // 次の電車の到着分数
   uint16_t  nextnexttrainmin; // 次の次の電車の到着分数
   uint16_t  dec_min_timer;    // 分数減算用タイマー
