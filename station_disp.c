@@ -3,9 +3,9 @@
 // station_disp.c
 ///////////////////////////////////////////////
 
-#include "pico/stdlib.h"
-#include "hardware/spi.h"
-#include <stdio.h>
+//#include "pico/stdlib.h"
+//#include "hardware/spi.h"
+//#include <stdio.h>
 
 #include "station_define.h"
 #include "stname.h"
@@ -172,7 +172,7 @@ void drawTime(bool isDrawLeftTime,struct time_hms time, uint16_t min, bool isJap
 /// @return スクロールが終了したら1を返す
 uint16_t drawScroll24x24Char(const uint32_t *char_line ,uint32_t posy, uint16_t start_frg, uint16_t *scrl_pos)
 {
-	extern	uint8_t		isBlinkOn;		// 文字列点滅用
+	extern	bool		isBlinkOn;		// 文字列点滅用
 	int32_t x;						// X軸位置
 	uint32_t color;					// 565色データ変数
 	uint32_t pixel;					// ピクセルデータ変数
@@ -328,7 +328,7 @@ void drawApproaching(uint32_t posy,bool isJapanese)
 {
 	uint32_t color_f;
 	uint16_t i;
-	extern	uint8_t		isBlinkOn;		// 文字列点滅用
+	extern	bool		isBlinkOn;		// 文字列点滅用
 
 	//点滅フラグ
 	if (isBlinkOn)

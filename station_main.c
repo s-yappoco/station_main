@@ -4,23 +4,28 @@
 ///////////////////////////////////////////////
 
 // include
-#include "pico/stdlib.h"
-#include "hardware/spi.h"
+//#include "pico/stdlib.h"
+//#include "hardware/spi.h"
 #include "pico/multicore.h"
-#include "hardware/pwm.h"
+//#include "hardware/pwm.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #include "station_define.h"
+#include "initialize.h"
 #include "st7789.h"
 #include "timer_ctrl.h"
 #include "station_disp.h"
 #include "signboard_bmp240.h"
 #include "station_signboard.h"
 #include "trainTimetable.h"
-#include "stname.h"
+//#include "stname.h"
 #include "core1_sound.h"
-#include "sounddata.h"
+//#include "sounddata.h"
 #include "button.h"
+#include "stateCtrl.h"
+#include "statework.h"
 
 
 //プロトタイプ宣言
@@ -32,6 +37,7 @@
 /// @param tb 時刻表構造体配列（値渡し
 void timer_ctrl(struct line_st *st, const struct timetable tb[]);
 
+/*
 /// @brief ステートマシン（フェーズ）制御関数：
 /// 列車案内、スクロール文字表示、地図表示、列車接近案内など各種状態を制御する
 /// @param st 車線ステータス構造体（参照渡し）
@@ -47,16 +53,45 @@ void switchLanguage(struct line_st *st);
 /// @param st 車線ステータス構造体（参照渡し）
 /// @param tb 時刻表構造体配列（値渡し）
 void drawLcdDisplay(struct line_st *st, const struct timetable tb[]);
+*/
 
 /// @brief スクロール文字制御関数：
 /// スクロール文字を表示する。
 /// @param st 車線ステータス構造体（参照渡し）
 void drawScrollText(struct line_st *st);
 
+/// @brief 車線1処理実行
+void doState1();
+
+/// @brief 車線1スクロール処理
+void doScrl1();
+
+/// @brief 車線2処理実行
+void doState2();
+
+/// @brief 車線2スクロール処理
+void doScrl2();
+
+/// @brief 全体処理
+void doAnyProcess();
+
 
 // グローバル変数
-uint8_t		isBlinkOn = 1;		// 文字列点滅用
-bool        isChangeByTime;		// 次の電車に移行する手段を時間にするか、ボタンにするかのフラグ
+bool    isBlinkOn =true;		// 文字列点滅用
+bool    isChangeByTime;		// 次の電車に移行する手段を時間にするか、ボタンにするかのフラグ
+
+// オンボードLEDピン番号設定
+const uint8_t LED_PIN = PICO_DEFAULT_LED_PIN;
+
+// 現在時刻構造体定義
+struct time_struct time_disp;
+// 最終時刻構造体定義
+struct time_hms end_time;
+
+// 1番線2番線構造体をそれぞれ設定
+struct line_st line1;
+struct line_st line2;
+
 // 排他処理用のセマフォ
 semaphore_t sem;
 // 音声鳴動ステータスの定義
@@ -68,243 +103,25 @@ semaphore_t sem;
 ///////////////////////////////////////////////
 int main() {
 
-    ///////////////////////////////////////////
-    // 初期設定
-    ///////////////////////////////////////////
-    // SPI初期化
-    ///////////////////////////////////////////
-    //ピンの接続:
-    //SPI SCK (Clock) を GP2 (ピン4)
-    //SPI TX (MOSI) を GP3 (ピン5)
-    //SPI CS をGP5(ピン7)->採用しているディスプレイにはCSピンがないので、未接続
-    //ディスプレイのRST ピンを GP12 (ピン16)
-    //ディスプレイのDC ピンを GP8 (ピン11)
+    // 初期化処理
+    initializeSettings();
 
-    // 通信速度設定
-    //spi_init(SPI_PORT, 1000 * 1000); // 1 MHz
-    spi_init(SPI_PORT, 1000 * 1000 * 20); // 20 MHz
-    // ピン設定
-    gpio_set_function(PIN_SPI_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_SPI_MOSI, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_CS, GPIO_FUNC_SPI);
-
-    spi_set_format(
-        SPI_PORT, // SPIポート
-	    8,        // データビット数
-        SPI_CPOL_1, // クロック極性（CPOL）
-        SPI_CPHA_1, // クロック位相（CPHA）
-        SPI_MSB_FIRST// MSBファースト
-	); 
-    ///////////////////////////////////////////
-    // GPIO設定
-    ///////////////////////////////////////////
-    // オンボードLEDピン番号設定
-    const uint8_t LED_PIN = PICO_DEFAULT_LED_PIN;
-    // 各種ピン設定
-    gpio_init(PIN_RST);             // SPI リセットピン初期化
-    gpio_init(PIN_DC);              // DCピン初期化
-    gpio_init(LED_PIN);
-    gpio_init(PIN_APPBTN1);         // 1番線用電車接近ボタン
-    gpio_init(PIN_APPBTN2);         // 2番線用電車接近ボタン
-    gpio_init(PIN_APPBTN3);         // 1番線用電車接近ボタン　拡張
-    gpio_init(PIN_APPBTN4);         // 2番線用電車接近ボタン　拡張
-    gpio_init(PIN_POWERSAVE);       // DCDCパワーセーブ制御
-    gpio_init(PIN_AUDIOMUTE);       // 音声ミュート制御ピン(highでミュート)
-    gpio_init(PIN_BLK);             // バックライト制御ピン（highで点灯)
-
-
-    //入出力方向設定
-    gpio_set_dir(PIN_RST, GPIO_OUT);        // RSTピン出力
-    gpio_set_dir(PIN_DC, GPIO_OUT);         // DCピン出力
-    gpio_set_dir(LED_PIN, GPIO_OUT);        // オンボードLED出力
-    gpio_set_dir(PIN_APPBTN1, GPIO_IN);     // ボタン入力
-    gpio_set_dir(PIN_APPBTN2, GPIO_IN);     // ボタン入力
-    gpio_set_dir(PIN_APPBTN3, GPIO_IN);     // ボタン入力 拡張
-    gpio_set_dir(PIN_APPBTN4, GPIO_IN);     // ボタン入力 拡張
-    gpio_set_dir(PIN_POWERSAVE, GPIO_OUT);  // DCDCパワーセーブ制御
-    gpio_set_dir(PIN_AUDIOMUTE,GPIO_OUT);   // 音声ミュート制御ピン(highでミュート)
-    gpio_set_dir(PIN_BLK, GPIO_OUT);        // バックライト制御ピン (highで点灯)
-    
-    // プルアップ設定
-    gpio_pull_up(PIN_APPBTN1);      // ボタン入力ピンをpull up設定
-    gpio_pull_up(PIN_APPBTN2);      // ボタン入力ピンをpull up設定
-    gpio_pull_up(PIN_APPBTN3);      // ボタン入力ピンをpull up設定
-    gpio_pull_up(PIN_APPBTN4);      // ボタン入力ピンをpull up設定
-
-    // 初期値出力
-    gpio_put(PIN_AUDIOMUTE,1);          // ミュート出力
-    gpio_put(PIN_BLK,1);                // ディスプレイバックライト点灯
-
-    // スタンダードIO初期設定
-    stdio_init_all();
-
-    //DCDCパワーセーブモード制御
-    gpio_put(PIN_POWERSAVE,1);      // ノイズ対策のためパワーセーブをOFFにする(highでオフ)
-                                    // デフォルトは基板上でプルダウンされている(lowでセーブモード)
-
-
-
-    ///////////////////////////////////////////
-    // ST7789ディスプレイ初期設定
-    ///////////////////////////////////////////
-    // Initialize the display
-    initializeSt7789();
-
-    // 画面回転設定
-    // 設定角度 0:0度 1:90度 2:180度 3:270度
-    setRotationSt7789(2) ;
-
-    // Draw a red rectangle in the center
-    //fillRectangleSt7789(60, 60, 120, 120, LCD_RED); // Red
-
-    // Example: Draw pixels of different colors
-    //draw1PixelSt7789(120, 120, 0x07E0); // Green
-
-    // 時刻初期化
-    initializeClock();
-
-    ///////////////////////////////////////////
-    // 初期画面表示
-    ///////////////////////////////////////////  
-    // 画面を黒で塗りつぶす
-    fillScreenSt7789(LCD_BLK); // BLACK
-
-    // 初期文字列表示
-    locateLcdPrintf(0,0);
-    setColorLcdPrintf(LCD_GRN,LCD_BLK);
-    printfSt7789("===============");
-
-    locateLcdPrintf(0,1);
-    setColorLcdPrintf(LCD_YEL,LCD_GRY);
-    printfSt7789("Train Info     ");
-    locateLcdPrintf(0,2);
-    printfSt7789(" Display system");
-
-    locateLcdPrintf(0,3);
-    setColorLcdPrintf(LCD_GRN,LCD_BLK);
-    printfSt7789("===============");
-
-
-    locateLcdPrintf(0,5);
-    setColorLcdPrintf(LCD_CYN,LCD_BLK);
-    printfSt7789("ver 9.00b"); 
-
-    locateLcdPrintf(0,10);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("@2024  yamapy"); 
-
-    locateLcdPrintf(0,14);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("0123456789ABCDE"); 
-
-    // ATOSモード切替
-    // ボタンを押下していなかったら、時間切り替えモードとする
-    if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0 || gpio_get(PIN_APPBTN3)==0 || gpio_get(PIN_APPBTN4)==0)
-        isChangeByTime = false;
-    else
-        isChangeByTime = true;
-	
-    locateLcdPrintf(0,6);
-    if (isChangeByTime){
-        setColorLcdPrintf(LCD_MAG,LCD_BLK);
-        printfSt7789("Time chg mode"); 
-    }else{
-        setColorLcdPrintf(LCD_RED,LCD_BLK);
-		printfSt7789("Button chg mode"); 		
-    }
-
-    // 初期画面表示時間中、LEDを点滅させます
-    uint16_t i;
-    for (i=0; i<10; i++){
-        sleep_ms(200);
-        gpio_put(LED_PIN,1);
-        sleep_ms(200);
-        gpio_put(LED_PIN,0);
-    }
-
-    // 画面を黒で塗りつぶす
-    fillScreenSt7789(LCD_BLK); // BLACK
-
-    // ボタンフラグクリア
-    for (i=0; i<MAX_BUTTONS; i++){
-        clear_button_released_flag(i);
-    }
 
     ///////////////////////////////////////////
     // 変数定義
     ///////////////////////////////////////////
-    // 現在時刻構造体
-    struct time_struct time_disp;
-    struct time_hms end_time;
+
 
     // 現在時刻取得（初期値リード)
     time_disp = getClock();
 
-    // 終了時刻設定
-    end_time.hh = END_HH;
-    end_time.mm = END_MM;
-    end_time.ss = END_SS;
 
-    // 1番線2番線構造体をそれぞれ設定
-    struct line_st line1;
-    struct line_st line2;
- 
+    // 車線状態初期化
+    initializeLineState();
+
     // タスク管理用
-    station_prosess station_prosess = DO_DEBUG;
+    station_prosess station_prosess = DO_ANYPROCESS;
     
-    // 構造体値初期化
-    line1.line_no = 0;                          // 車線番号（ボタン番号指定用)
-    line1.posy = LINE1POSY;                     // 表示高さ設定
-    line1.current_state = NEXT_J_ST;            // ステートマシン初期値
-    line1.current_phase = NEXT_A_P;             // ステートフェーズ初期値
-    line1.updatestate = true;                   // ステートマシン更新フラグ
-    line1.info_no = 0;                          // スクロール文字種別番号初期値
-    line1.start_flg = false;                    // スクロール文字開始フラグ
-    line1.end_flg = true;                       // スクロール文字終了フラグ
-    line1.scrl_pos = 0;                         // スクロール文字ポジション
-    line1.button_gpio = PIN_APPBTN1;            // 電車接近のボタンのGIO番号
-    line1.phase_timer = 0;                      // フェーズ切り替え用タイマー
-    line1.language_timer = 0;                   // 言語切り替え用タイマー
-    line1.next_st_timer = 0;                    // 電車がホームに到着してから発車するまでに使用するタイマ
-
-    line1.dec_min_timer = 0;                    // 残り分数減算タイマー
-    line1.timetableNo = 0;                      // 次の電車の時刻表は前から何番目か
-
-    if(isChangeByTime){
-        // 時刻表から最初の分数の値を計算して初期値とする
-        line1.nexttrainmin = getTimeDifference(line1TB[line1.timetableNo].departure_time, time_disp.timehms);          // 次の電車までの分数初期値
-        line1.nextnexttrainmin = getTimeDifference(line1TB[line1.timetableNo+1].departure_time, time_disp.timehms);  // 次の次の電車までの分数　初期値
-    }else{
-        line1.nexttrainmin = NEXTTRAININI;          // 次の電車までの分数初期値
-        line1.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
-    }
-
-    line2.line_no = 1;                          // 車線番号(ボタン番号指定用)
-    line2.posy = LINE2POSY;                     // 表示高さ設定
-    line2.current_state = NEXT_J_ST;            // ステートマシン初期値
-    line2.current_phase = NEXT_A_P;             // ステートフェーズ初期値
-    line2.updatestate = true;                   // ステートマシン更新フラグ
-    line2.info_no = 0;                          // スクロール文字種別番号初期値
-    line2.start_flg = false;                    // スクロール文字開始フラグ
-    line2.end_flg = true;                       // スクロール文字終了フラグ
-    line2.scrl_pos = 0;                         // スクロール文字ポジション
-    line2.button_gpio = PIN_APPBTN2;            // 電車接近のボタンのGIO番号
-    line2.phase_timer = 20*1;                   // フェーズ切り替え用タイマー（初期値を1番線のタイマーから1秒ずらす）
-    line2.language_timer = 20*1;                // 言語切り替え用タイマー
-    line2.next_st_timer = 0;                    // 電車がホームに到着してから発車するまでに使用するタイマ
-
-    line2.dec_min_timer = 20*1;                 // 残り分数減算タイマー
-    line2.timetableNo = 0;                      // 次の電車の時刻表は前から何番目か
-
-    if(isChangeByTime){
-        // 時刻表から最初の分数の値を計算して初期値とする
-        line2.nexttrainmin = getTimeDifference(line2TB[line2.timetableNo].departure_time, time_disp.timehms);          // 次の電車までの分数初期値
-        line2.nextnexttrainmin = getTimeDifference(line2TB[line2.timetableNo+1].departure_time, time_disp.timehms);  // 次の次の電車までの分数　初期値
-    }else{
-        line2.nexttrainmin = NEXTTRAININI;          // 次の電車までの分数初期値
-        line2.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
-    }
-
 
     ///////////////////////////////////////////
     // 音声データ初期値指定
@@ -314,6 +131,11 @@ int main() {
     ///////////////////////////////////////////
     // タイマー割り込み
     ///////////////////////////////////////////
+    locateLcdPrintf(0,4);
+    setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    printfSt7789("1234");
+
+    
     // 繰り返しタイマーを設定
     struct repeating_timer timer;
     // 10ミリ秒ごとに割り込みを実行
@@ -322,10 +144,64 @@ int main() {
         while(1);  //停止
     }
     
+    locateLcdPrintf(0,5);
+    printfSt7789("B");
     // タイマーを0にリセット
-    clear100msecTimer();
+    // clear100msecTimer();
 
+    locateLcdPrintf(0,5);
+    printfSt7789("C");  
+
+
+    ///////////////////////////////////////////
+    // マルチタスク処理実行
+    ///////////////////////////////////////////
+    // セマフォを初期化
+    sem_init(&sem, 1, 1);
+    // セマフォの許可を解除
+    sem_release(&sem);
+
+    // core1で動作させる関数を実行する。
+    multicore_launch_core1(core1_main);
+
+    locateLcdPrintf(0,5);
+    printfSt7789("D");
+
+    //ジングルサウンド鳴動（車線0でなる）
+    playJingleSound();
+
+    // ためしに車線1で音を鳴らす。
+    announceDoorCloseing(1);
+
+
+    locateLcdPrintf(0,5);
+    printfSt7789("E");
+    // デバッグ
    
+    volatile uint16_t i = 0;
+    while(true){
+        if (isSoundStop(0)){
+            locateLcdPrintf(0,5);
+            setColorLcdPrintf(LCD_WHT,LCD_BLK);
+            locateLcdPrintf(0,12);
+            printfSt7789("stopSound1");
+        }
+        if (isSoundStop(1)){
+            locateLcdPrintf(0,5);
+            setColorLcdPrintf(LCD_WHT,LCD_BLK);
+            locateLcdPrintf(0,13);
+            printfSt7789("stopSound2");
+        }
+        locateLcdPrintf(0,11);
+        i++;
+        printfSt7789("i=%6d",i);
+    }
+
+    locateLcdPrintf(0,12);
+    printfSt7789("outWhile");
+
+
+
     ///////////////////////////////////////////
     // 画面初期表示
     ///////////////////////////////////////////
@@ -334,14 +210,8 @@ int main() {
     // 看板表示(車線2)
 	drawBMP_B(&BMP_PLT_DOWN[0], &BMP_DAT_DOWN[0], 0 ,line2.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
 
-    ///////////////////////////////////////////
-    // マルチタスク処理実行
-    ///////////////////////////////////////////
-    // セマフォを初期化
-    sem_init(&sem, 1, 1);
 
-    // core1で動作させる関数を実行する。
-    multicore_launch_core1(core1_main);
+
 
     // デバッグ
     // while(true){
@@ -429,10 +299,16 @@ int main() {
                 }
     
             }
+            // デバッグ
+            locateLcdPrintf(0,3);
+            setColorLcdPrintf(LCD_WHT,LCD_BLK);
+            //printfSt7789("%1d / %1d", isSoundStop(0), isSoundStop(1));
  
         }
     }
     */
+
+
     ///////////////////////////////////////////
     // メインループ
     ///////////////////////////////////////////
@@ -450,14 +326,22 @@ int main() {
 				// ***** 車線1のステートを制御するタスク
                 case    DO_STATE1:
                     // タイマーの設定
-                    timer_ctrl(&line1, line1TB);
+                    //timer_ctrl(&line1, line1TB);
                     // ステートマシン(フェーズ)
-                    setDisplayMode(&line1, line1TB);
+                    //setDisplayMode(&line1, line1TB);
                     // ステートマシン（ステート）
-                    switchLanguage(&line1);
+                    //switchLanguage(&line1);
                     // ステート実行
-                    drawLcdDisplay(&line1, line1TB);
+                    //drawLcdDisplay(&line1, line1TB);
 
+
+                    // ステートマシン
+                    //stationStateCtrl(&line1, line1TB);
+
+                    // ステートマシンにしたがい、処理実行
+                    //doStateWork(&line1, line1TB);
+
+                    doState1();
                     station_prosess = DO_SCRL1;
 
                     break;
@@ -473,14 +357,22 @@ int main() {
 				// ***** 車線2のステートを制御するタスク
                 case    DO_STATE2:
                      // タイマーの設定
-                    timer_ctrl(&line2, line2TB);
+                    //timer_ctrl(&line2, line2TB);
                     // ステートマシン(フェーズ)
-                    setDisplayMode(&line2, line2TB);
+                    //setDisplayMode(&line2, line2TB);
                     // ステートマシン（ステート）
-                    switchLanguage(&line2);
+                    //switchLanguage(&line2);
                     // ステート実行
-                    drawLcdDisplay(&line2,line2TB);
+                    //drawLcdDisplay(&line2,line2TB);
 
+
+                    // ステートマシン
+                    //stationStateCtrl(&line2, line2TB);
+
+                    // ステートマシンにしたがい、処理実行
+                    //doStateWork(&line2, line2TB);
+
+                    doState2();
                     station_prosess = DO_SCRL2;
 
                     break;
@@ -490,11 +382,15 @@ int main() {
                     // インフォメーションスクロール
                     drawScrollText(&line2);
 
-                    station_prosess = DO_DEBUG;
+                    station_prosess = DO_ANYPROCESS;
                     break;
 
 				// ***** その他(デバッグ用表示)タスク
-                case    DO_DEBUG:
+                case    DO_ANYPROCESS:
+
+                    doAnyProcess();
+
+                    /*
                     // ボタンチェック関数呼び出し。
                     // 50msec毎に呼び出す
                     check_buttons();
@@ -551,7 +447,7 @@ int main() {
 
                     
                     // デバッグここまで                  
-                    
+                    */
                     
                     station_prosess = DO_STATE1;
                     break;
@@ -615,7 +511,7 @@ void timer_ctrl(struct line_st *st, const struct timetable tb[]){
     
 }//timer_ctrl
 
-
+/*
 /// @brief ステートマシン（フェーズ）制御関数：
 /// 列車案内、スクロール文字表示、地図表示、列車接近案内など各種状態を制御する
 /// @param st 車線ステータス構造体（参照渡し）
@@ -774,6 +670,11 @@ void setDisplayMode(struct line_st *st, const struct timetable tb[]){
     }//switch(current_phase)   
 }//setDisplayMode
 
+
+*/
+
+
+/*
 /// @brief ステートマシン(ステート）制御関数：
 /// 日本語表示、英語表示を切り替えるステートマシン
 /// @param st 車線ステータス構造体（参照渡し）
@@ -926,6 +827,9 @@ void switchLanguage(struct line_st *st){
     }// switch(current_state)
 }//switchLanguage
 
+*/
+
+/*
 
 /// @brief ステートマシンに基づく表示実行関数
 /// @param st 車線ステータス構造体（参照渡し）
@@ -1113,6 +1017,7 @@ void drawLcdDisplay(struct line_st *st, const struct timetable tb[]){
     }//  switch(current_state)
 }//do_state
 
+*/
 
 /// @brief スクロール文字制御関数：
 /// スクロール文字を表示する。
@@ -1163,3 +1068,110 @@ void drawScrollText(struct line_st *st){
             st->language_timer = 0;
     }//(!st->end_flg)
 }//drawScrollText
+
+
+/// @brief 車線1処理実行
+void doState1(){
+    // タイマーの設定
+    timer_ctrl(&line1, line1TB);
+
+    // ステートマシン
+    stationStateCtrl(&line1, line1TB);
+
+    // ステートマシンにしたがい、処理実行
+    doStateWork(&line1, line1TB);
+
+
+}
+
+/// @brief 車線1スクロール処理
+void doScrl1(){
+    // インフォメーションスクロール
+    drawScrollText(&line1);
+
+}
+
+/// @brief 車線2処理実行
+void doState2(){
+
+    // タイマーの設定
+    timer_ctrl(&line2, line2TB);
+
+    // ステートマシン
+    stationStateCtrl(&line2, line2TB);
+
+    // ステートマシンにしたがい、処理実行
+    doStateWork(&line2, line2TB);
+
+}
+
+/// @brief 車線2スクロール処理
+void doScrl2(){
+    // インフォメーションスクロール
+    drawScrollText(&line2);
+}
+
+/// @brief 全体処理
+void doAnyProcess(){
+    // ボタンチェック関数呼び出し。
+    // 50msec毎に呼び出す
+    check_buttons();
+    
+    // 時刻がすぎたら、最初に戻る
+    if(isBefore(end_time, time_disp.timehms)){
+        // 初期化実行
+        initializeClock();               // 時刻初期値
+        line1.timetableNo = 0;      // 時刻表位置初期化
+        line2.timetableNo = 0;      // 時刻表位置初期化
+
+        // 残り分数初期化
+        if(isChangeByTime){
+            // 時刻表から最初の分数の値を計算して初期値とする
+            line1.nexttrainmin = getTimeDifference(line1TB[line1.timetableNo].departure_time, time_disp.timehms);          // 次の電車までの分数初期値
+            line1.nextnexttrainmin = getTimeDifference(line1TB[line1.timetableNo+1].departure_time, time_disp.timehms);  // 次の次の電車までの分数　初期値
+        }else{
+            line1.nexttrainmin = NEXTTRAININI;          // 次の電車までの分数初期値
+            line1.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
+        }
+
+        if(isChangeByTime){
+            // 時刻表から最初の分数の値を計算して初期値とする
+            line2.nexttrainmin = getTimeDifference(line2TB[line2.timetableNo].departure_time, time_disp.timehms);          // 次の電車までの分数初期値
+            line2.nextnexttrainmin = getTimeDifference(line2TB[line2.timetableNo+1].departure_time, time_disp.timehms);  // 次の次の電車までの分数　初期値
+        }else{
+            line2.nexttrainmin = NEXTTRAININI;          // 次の電車までの分数初期値
+            line2.nextnexttrainmin = NEXTNEXTTRAININI;  // 次の次の電車までの分数　初期値
+        }
+    }
+
+    // デバッグ：車線1,2のステータス表示
+    locateLcdPrintf(0,7);
+    setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    printfSt7789("%2d:%2d/%4d/%4d",1,line1.lineState, line1.phase_timer,line1.language_timer);
+    locateLcdPrintf(0,8);
+    setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    printfSt7789("%2d:%2d/%4d/%4d",2,line2.lineState, line2.phase_timer,line2.language_timer);
+
+    // デバッグ：現在時刻表示
+    time_disp = getClock();
+    locateLcdPrintf(0,14);
+    setColorLcdPrintf(LCD_YEL, LCD_BLK);    
+    printfSt7789("[%02d:%02d:%02d] [%02d]", time_disp.timehms.hh, time_disp.timehms.mm, time_disp.timehms.ss, time_disp.time_msec);
+
+    //デバッグ：ボタンを押下したらLED点灯
+    //green LED
+    //if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0){
+    //    gpio_put(LED_PIN,1);
+    //}else{
+    //    gpio_put(LED_PIN,0);
+    //}
+    
+    if(gpio_get(PIN_APPBTN1)==0 || gpio_get(PIN_APPBTN2)==0){
+        // line1Soundsts.sounddata = SOUND_NO1;
+    }
+
+    
+    // デバッグここまで                  
+                    
+
+}

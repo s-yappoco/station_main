@@ -6,8 +6,12 @@
 #ifndef _STATION_DEFINE_H
 #define _STATION_DEFINE_H
 
-#include "pico/stdlib.h"
-#include <stdio.h>
+//#include "pico/stdlib.h"
+#include "hardware/spi.h"
+#include "pico/multicore.h"
+//#include "hardware/pwm.h"
+//#include <stdio.h>
+
 
 // ラズパイピコピン設定
 #define PIN_RST			  (12)	//ディスプレイのRST	GP12(ピン16)
@@ -62,8 +66,9 @@
 									                  // おもちゃなので時間が早く過ぎた方が面白い
 #define SCRLDOT           (3)       // 電光掲示板を一度に何ドットスクロールさせるか
                                     // スクロールのなめらかさをとるか、速さをとるか・・・
-#define SILENT1TIME       (5*20)    // 電車が到着してから、ベルが鳴り始めるまでの時間
-#define SILENT2TIME       (5*20)    // ベルが鳴り終わってから、次の電車表示に切り替わるまでの時間
+#define SILENT1TIME       (15*20)   // 接近放送があってから、電車が入ってくるまでの時間(接近アナウンスより長い必要あり)
+#define SILENT2TIME       (5*20)    // 電車が到着してから、ベルが鳴り始めるまでの時間
+#define SILENT3TIME       (10*20)   // ベルが鳴り終わってから、次の電車表示に切り替わるまでの時間（ドア締めアナウンスより長い必要あり)
 
 // 時分秒の構造体定義
 struct time_hms{
@@ -107,13 +112,65 @@ typedef enum{
   NEXT_ST_P         // 次の案内フェーズ
 } station_phase;
 
+// 時分割でどの処理をしていくかを管理するステート
+// 10msec毎に 1番線ステートマシン処理、1番線スクロール文字表示処理、
+// 2番線ステートマシン処理、2番線スクロール文字表示処理
+// 最後に後方処理を実施するという、50msecサイクルで回している。
 typedef enum{
   DO_STATE1,        // 1番線ステートマシン設定
   DO_SCRL1,         // 1番線スクロール文字表示
   DO_STATE2,        // 2番線ステートマシン設定
   DO_SCRL2,         // 2番線スクロール文字表示
-  DO_DEBUG          // デバッグ用表示
+  DO_ANYPROCESS     // 後方処理
 } station_prosess;
+
+// ステートマシンのフェーズを定義する enum 型
+typedef enum {
+  // 起動時
+  ST_INITIAL,                      // 最初の起動ステータス
+  // 基本表示 その1(日本語/英語サイクル)
+  ST_JP_DUAL_DISPLAY1,             // （上下二列に日本語表示を行う）
+  ST_JP_DUAL_WAIT1,                // 上下二列の日本語表示を継続、phase_timerとlanguage_timerによるステート切り替え時間を監視中（何もしない）
+  ST_EN_DUAL_DISPLAY1,             // （上下二列に英語表示を行う）
+  ST_EN_DUAL_WAIT1,                // 上下二列の英語表示を継続、phase_timerとlanguage_timerによるステート切り替え時間を監視中（何もしない）
+
+    // 案内表示
+  ST_GUIDANCE_INIT,                // スクロール案内表示を開始する（スクロール表示処理開始トリガ設定）
+  ST_JP_GUIDANCE_DISPLAY,          // 日本語＆スクロール案内中（1段目日本語表示）
+  ST_JP_GUIDANCE_WAIT,             // 日本語＆案内表示終了待ち（何もしない）
+  ST_EN_GUIDANCE_DISPLAY,          // 英語＆スクロール案内表示中（1段目英語表示）
+  ST_EN_GUIDANCE_WAIT,             // 英語＆案内表示終了待ち（何もしない）
+  
+  // 基本表示 その2(日本語/英語サイクル)
+  ST_JP_DUAL_DISPLAY2,             // （上下二列に日本語表示を行う）
+  ST_JP_DUAL_WAIT2,                // 上下二列の日本語表示を継続、phase_timerとlanguage_timerによるステート切り替え時間を監視中（何もしない）
+  ST_EN_DUAL_DISPLAY2,             // （上下二列に英語表示を行う）
+  ST_EN_DUAL_WAIT2,                // 上下二列の英語表示を継続、phase_timerとlanguage_timerによるステート切り替え時間を監視中（何もしない）
+
+    // マップ表示
+  ST_JP_MAP_DISPLAY,               // （上段に日本語＆下段にマップ表示を行う）
+  ST_JP_MAP_WAIT,                  // 日本語＆マップ表示待ち（何もしない）
+  ST_EN_MAP_DISPLAY,               // （上段に英語＆下段にマップ表示を行う）
+  ST_EN_MAP_WAIT,                  // 英語＆マップ表示待ち（何もしない）
+
+    // 電車接近表示
+  ST_APPROACHING_MELODY_START,     // 接近アナウンス放送開始（音声トリガ設定）
+  ST_JP_APPROACHING_DISPLAY,       // （上段日本語電車接近表示、下段電車が参ります表示）
+  ST_JP_APPROACHING_WAIT,          // 日本語電車接近表示待ち（点滅のため、絶えず描画する）
+  ST_EN_APPROACHING_DISPLAY,       // （上段英語電車接近表示、下段トレインアプローチ表示）
+  ST_EN_APPROACHING_WAIT,          // 英語電車接近表示待ち（点滅のため、絶えず描画する）
+
+    // 特殊表示・音声
+  ST_JP_SINGLE_LINE_DISPLAY,       // 日本語1列のみ表示
+  ST_JP_SINGLE_LINE_WAIT,          // 日本語1列表示待ち
+  ST_DEPARTURE_MELODY_START,       // 発車メロディ再生開始
+  ST_DEPARTURE_MELODY_PLAYING,     // 発車メロディ再生中 (再生停止待ち)
+  ST_DOOR_CLOSE_ANNOUNCE_START,    // ドアが閉まります案内再生開始
+  ST_DOOR_CLOSE_ANNOUNCE_PLAYING,  // ドアが閉まります案内再生中 (再生停止待ち)
+  ST_SET_NEXT_TRAIN                // 次の電車へ移行する処理
+} st_state;
+
+
 
 //時刻表の構造体定義
 struct timetable{
@@ -134,15 +191,27 @@ struct line_st{
   bool      end_flg;        // スクロール文字の表示終了を示す。
   uint16_t  scrl_pos;       // スクロール文字の現在表示位置を格納する。
   uint16_t  button_gpio;    // 電車接近のボタンのGIO番号
-  uint16_t  phase_timer;    // フェーズ切り替えようタイマー
+  uint16_t  phase_timer;    // フェーズ切り替え用タイマー
   uint16_t  language_timer; // 言語切り替え用タイマー
   uint16_t  next_st_timer;  // 電車がホームに到着してから発車するまでに使用するタイマー
   uint16_t  nexttrainmin;   // 次の電車の到着分数
   uint16_t  nextnexttrainmin; // 次の次の電車の到着分数
   uint16_t  dec_min_timer;    // 分数減算用タイマー
   uint16_t  timetableNo;    // 次にくる電車の現在の時刻表は何番目か
+  st_state  lineState;      // 車線ステートマシン(新規)
 };
 
+extern const uint8_t LED_PIN;                         // オンボードLEDピン番号設定
+extern semaphore_t sem;                               // 排他処理用のセマフォ
+extern bool    isBlinkOn;                             // 文字列点滅用
+extern bool    isChangeByTime;		                    // 次の電車に移行する手段を時間にするか、ボタンにするかのフラグ
+// 現在時刻構造体定義
+extern struct time_struct time_disp;
+// 最終時刻構造体定義
+extern struct time_hms end_time;
 
+// 1番線2番線構造体をそれぞれ設定
+extern struct line_st line1;
+extern struct line_st line2;
 
 #endif // _STATION_DEFINE_H

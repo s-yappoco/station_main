@@ -45,12 +45,20 @@ bool isScrollTiming2 = false;        // 車線２用スクロールタイミン�
 uint16_t min_yamanote1 = 3;
 uint16_t min_yamanote2 = 7;
 
-/// @brief 現在時刻初期化関数
+/// @brief 現在時刻　終了時刻　初期化関数
 void initializeClock(){
+
+    // 現在時刻を初期化
     time_now.timehms.hh = START_HH;		// 時
     time_now.timehms.mm = START_MM;		// 分
     time_now.timehms.ss = START_SS;		// 秒
     time_now.time_msec = 00;			// 100msec毎にカウントアップ 10数えたら1秒経過
+
+    // 終了時刻設定を初期化
+    end_time.hh = END_HH;
+    end_time.mm = END_MM;
+    end_time.ss = END_SS;
+    
 }
 
 /// @brief 時計動作関数

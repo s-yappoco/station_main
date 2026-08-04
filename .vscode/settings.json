@@ -43,5 +43,6 @@
         "station_disp.h": "c",
         "station_signboard.h": "c",
         "station_define.h": "c"
-    }
+    },
+    "cortex-debug.variableUseNaturalFormat": true
 }

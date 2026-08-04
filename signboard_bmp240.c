@@ -9,6 +9,7 @@
 
 // 色パレット 16色
 
+
 #include "pico/stdlib.h"
 #include <stdio.h>
 #include "signboard_bmp240.h"

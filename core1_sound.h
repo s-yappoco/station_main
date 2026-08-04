@@ -6,6 +6,8 @@
 #ifndef _CORE1_SOUND_H
 #define _CORE1_SOUND_H
 
+#include <stdbool.h>
+#include <stdint.h>
 
 /// @brief マルチコアテスト関数
 void core1_main();
@@ -25,6 +27,9 @@ void playDepartureMelody(uint8_t line_no);
 /// @param line_no 番線番号　0 ～　1
 void announceDoorCloseing(uint8_t line_no);
 
+/// @brief ジングルサウンド鳴動
+void playJingleSound();
+
 /// @brief 放送が停止しているかどうかを確認する
 /// @param line_no 番線番号　0 ～　1
 /// @return 放送が停止していればtrue;
@@ -35,5 +40,9 @@ void muteSound();
 
 /// @brief AUDIO ICのミュートを解除する
 void unMuteSound();
+
+/// @brief 音声を停止する
+/// @param line_no  指定した番線の音声を停止する
+void stopSound(uint8_t line_no);
 
 #endif // _CORE1_SOUND_H

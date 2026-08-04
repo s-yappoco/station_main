@@ -6,6 +6,9 @@
 #ifndef _SOUNDDATA_H
 #define _SOUNDDATA_H
 
+#include "pico/stdlib.h"
+#include <stdio.h>
+
 extern const uint8_t SOUND_NO1[];
 extern const uint8_t SOUND_NO2[];
 
@@ -23,4 +26,6 @@ extern const uint8_t BELLDATA2[];
 extern const uint8_t DOOR_CLOSE_SOUNDDATA1[];
 extern const uint8_t DOOR_CLOSE_SOUNDDATA2[];
 
+// ジングルサウンドデータ
+extern const uint8_t JINGLE_SOUND_DATA[];
 #endif // _SOUNDDATA_H

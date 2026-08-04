@@ -37,6 +37,7 @@ pico_sdk_init()
 
 add_executable(station_main
  station_main.c
+ initialize.c
  font.c
  signboard_bmp240.c
  st7789.c
@@ -48,13 +49,15 @@ add_executable(station_main
  core1_sound.c
  sounddata.c
  button.c
+ stateCtrl.c
+ statework.c
  )
 
 pico_set_program_name(station_main "station_main")
 pico_set_program_version(station_main "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(station_main 0)
+#pico_enable_stdio_uart(station_main 0)
 pico_enable_stdio_usb(station_main 0)
 
 # Add the standard library to the build

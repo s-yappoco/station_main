@@ -4,17 +4,18 @@
 ///////////////////////////////////////////////
 
 // include
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
+//#include "pico/stdlib.h"
+//#include "pico/multicore.h"
 #include "hardware/pwm.h"
 
 #include "core1_sound.h"
 #include "station_define.h"
 #include "sounddata.h"
+#include "st7789.h"
 
 
 // グローバル変数
-extern semaphore_t sem;     // 排他処理用のセマフォ
+
 
 uint32_t muteTimer = 0;     // ミュート制御用のタイマー
 
@@ -96,9 +97,19 @@ void core1_main(){
     // core1で割り込み設定すれば、登録されたcall back関数もcore1で実行されるようです。
     bool result = add_repeating_timer_us(TIMER_USEC, call_back_core1, NULL, &timer);
     if (!result) {
+
+        locateLcdPrintf(0,0);
+        setColorLcdPrintf(LCD_RED,LCD_BLK);
+        printfSt7789("c1IRQ NG");
+
         while(true);  //停止
     }
 
+    // デバッグ
+    locateLcdPrintf(0,0);
+    setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    printfSt7789("c1IRQ OK");
+    // ここまで
 
     while(true);
 
@@ -129,50 +140,77 @@ void core1_main(){
 /// @brief core1内タイマーのコールバック関数
 /// @return 割り込みを継続する場合はtrue
 bool call_back_core1(){
-    // 6kHzことに呼び出されるため、重い処理やwaitなどは禁止する
+    // 6kHzごとに呼び出されるため、重い処理やwaitなどは禁止する
     // 音声データを読み出して、PWM出力設定したら、すぐにreturnすること。
 
-    // 一時格納用音声構造体（1番線、2番専用)
-    struct sound_sts soundsts[2];
+    // ★前回の状態を記憶しておくため、static（静的ローカル変数）に変更します。
+    // 初期値として、起動直後は安全のため無音・停止状態にしておきます。
+    static struct sound_sts soundsts[2] = {
+        { SILENT_SOUNDDATA, true },
+        { SILENT_SOUNDDATA, true }
+    };
 
     // PWMへ渡す音声レベル
     uint8_t audio_duty = 0;
 
-    // セマフォから許可を要求。許可が得られるまで待機
-    sem_acquire_blocking(&sem);
-
-    // 共用メモリへのアクセス
-    // すぐに抜けないとデッドロックする。
-    soundsts[0] = lineSoundsts[0];
-    soundsts[1] = lineSoundsts[1];
-
-    // セマフォの許可を解除
-    sem_release(&sem);
+    // ★セマフォの取得を試みる（ブロックしない）
+    if (sem_try_acquire(&sem)) {
+        // セマフォが取れた場合のみ、最新の共有メモリからデータをコピー
+        soundsts[0] = lineSoundsts[0];
+        soundsts[1] = lineSoundsts[1];
+        
+        // コピーしたら「すぐに」セマフォを解放する
+        sem_release(&sem);
+    } else {
+        // ★Busyだった場合はここに入ります。
+        // 何もしないことで、前回この関数が終わった時点の soundsts[2] の中身（ポインタ位置など）が
+        // そのまま維持され、今回の処理に使い回されます。
+    }
 
     // サウンドデータ配列からデータを取得し、音声レベルを設定する。
     // 2車線分取得し、データを半分にして足し算する。
+
+    // 2車線分の生データを一時的に足し合わせるための変数（int型など大きめの型にする）
+    uint16_t mixed_raw = 0;
+
     for(uint8_t i=0; i<2; i++){
         if (*soundsts[i].sounddata == 0xff){       // 最終データの時
             soundsts[i].isStopedSound = true;      // 音声停止ステータス
-            audio_duty += RESOLUTION / 4;          // 音声を中央値で出力(中央値のさらに半分)
+            mixed_raw += (RESOLUTION / 2);         // 無音時は、波形の中央値（128）
         } else {
-            audio_duty += *soundsts[i].sounddata / 2;  // 音声データを変数にインクリメント
+            soundsts[i].isStopedSound = false;     // 再生中ステータス
+            mixed_raw += *soundsts[i].sounddata;   // 再生中は、生データをそのまま（割らずに）足す
             soundsts[i].sounddata++;               // 配列要素を一つ進める
-            soundsts[i].isStopedSound = false;     // 音声停止ステータス
         }
     }
 
-    // セマフォから許可を要求。許可が得られるまで待機
-    sem_acquire_blocking(&sem);
+    // ★最後にまとめて2で割る（これで小数点以下の切り捨てによるノイズを防ぐ）
+    audio_duty = (uint8_t)(mixed_raw / 2);
 
-    // 共用メモリへのアクセス
-    // すぐに抜けないとデッドロックする。
-    // データの書き戻し
-    lineSoundsts[0] = soundsts[0];
-    lineSoundsts[1] = soundsts[1];
+    // for(uint8_t i=0; i<2; i++){
+    //     if (*soundsts[i].sounddata == 0xff){       // 最終データの時
+    //         soundsts[i].isStopedSound = true;      // 音声停止ステータス
+    //         audio_duty += RESOLUTION / 4;          // 音声を中央値で出力(中央値のさらに半分)
+    //     } else {
+    //         audio_duty += *soundsts[i].sounddata / 2;  // 音声データを変数にインクリメント
+    //         soundsts[i].sounddata++;               // 配列要素を一つ進める
+    //         soundsts[i].isStopedSound = false;     // 音声停止ステータス
+    //     }
+    // }
 
-    // セマフォの許可を解除
-    sem_release(&sem);
+    // ★再生位置を進めた結果（sounddataのポインタなど）をグローバル側に書き戻す
+    if (sem_try_acquire(&sem)) {
+        // セマフォが取れた場合のみ、最新の状態を書き戻す
+        lineSoundsts[0] = soundsts[0];
+        lineSoundsts[1] = soundsts[1];
+        
+        sem_release(&sem);
+    } else {
+        // ★書き戻し時にBusyだった場合：
+        // 今回のポインタのインクリメント結果は lineSoundsts には即座に反映されませんが、
+        // 次回の割り込み時に「Core0がセマフォを離していれば」最初の if (sem_try_acquire) の中で
+        // 前回の残像ではなく、Core0側のデータと安全に同期されるため問題ありません。
+    }
 
     // pwm出力を実行
     pwm_set_chan_level(slice_num, PWM_CHAN_A, audio_duty);
@@ -188,13 +226,13 @@ bool call_back_core1(){
     return(true);
 }
 
-
 /// @brief 電車の接近アナウンスの放送を開始します。
 /// @param line_no 番線番号　0 ～　1
 void announceTrainApproach(uint8_t line_no){
 
     // セマフォから許可を要求。許可が得られるまで待機
     sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
 
     if (line_no == 0){                  // 1番線処理
         lineSoundsts[0].sounddata = APPROACH_SOUNDDATA1;
@@ -214,6 +252,7 @@ void playDepartureMelody(uint8_t line_no){
 
     // セマフォから許可を要求。許可が得られるまで待機
     sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
 
     if (line_no == 0){                  // 1番線処理
         lineSoundsts[0].sounddata = BELLDATA2;
@@ -234,6 +273,7 @@ void announceDoorCloseing(uint8_t line_no){
 
     // セマフォから許可を要求。許可が得られるまで待機
     sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
 
     if (line_no == 0){                  // 1番線処理
         lineSoundsts[0].sounddata = DOOR_CLOSE_SOUNDDATA1;
@@ -247,6 +287,21 @@ void announceDoorCloseing(uint8_t line_no){
     sem_release(&sem);
 }
 
+/// @brief ジングルサウンド鳴動
+void playJingleSound(){
+    // セマフォから許可を要求。許可が得られるまで待機
+    sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
+
+    // ジングルサウンド鳴動開始
+    lineSoundsts[0].sounddata = JINGLE_SOUND_DATA;
+    lineSoundsts[0].isStopedSound = false;
+
+    // セマフォの許可を解除
+    sem_release(&sem);
+}
+
+
 /// @brief 放送が停止しているかどうかを確認する
 /// @param line_no 番線番号　0 ～　1
 /// @return 放送が停止していればtrue;
@@ -256,6 +311,7 @@ bool isSoundStop(uint8_t line_no){
 
     // セマフォから許可を要求。許可が得られるまで待機
     sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
 
     // サウンドが停止しているかどうかを確認
     if (line_no < 2) {
@@ -273,9 +329,40 @@ bool isSoundStop(uint8_t line_no){
 /// @brief AUDIO　ICへミュート出力を行う
 void muteSound(){
     gpio_put(PIN_AUDIOMUTE,1);      // ミュート出力
+    // デバッグ
+    // locateLcdPrintf(0,1);
+    // setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    // printfSt7789("MUTE   ");
+
 }
 
 /// @brief AUDIO ICのミュートを解除する
 void unMuteSound(){
     gpio_put(PIN_AUDIOMUTE,0);      // ミュート解除
+
+    // デバッグ
+    // locateLcdPrintf(0,1);
+    // setColorLcdPrintf(LCD_YEL,LCD_BLK);
+    // printfSt7789("PLAYING");
 }
+
+
+/// @brief 音声を停止する
+/// @param line_no 
+void stopSound(uint8_t line_no){
+    // セマフォから許可を要求。許可が得られるまで待機
+    sem_acquire_blocking(&sem);
+    // sem_try_acquire(&sem);
+
+    if (line_no == 0){                  // 1番線処理
+        lineSoundsts[0].sounddata = SILENT_SOUNDDATA;
+        lineSoundsts[0].isStopedSound = true;
+    } else {                            // 2番線処理
+        lineSoundsts[1].sounddata = SILENT_SOUNDDATA;
+        lineSoundsts[1].isStopedSound = true;       
+    }
+
+    // セマフォの許可を解除
+    sem_release(&sem);
+}
+            
