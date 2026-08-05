@@ -1,4 +1,4 @@
-// Padded and checksummed version of: C:/pico/station_main/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.bin
+// Padded and checksummed version of: C:/pico/station_main-station_sound_branch/station_main/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.bin
 
 .cpu cortex-m0plus
 .thumb

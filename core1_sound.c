@@ -106,9 +106,12 @@ void core1_main(){
     }
 
     // デバッグ
-    locateLcdPrintf(0,0);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("c1IRQ OK");
+    // ★★重要
+    // core1_main関数内で液晶ディスプレイの制御をすると、core0の処理と衝突してしまいます。
+    // この内部では実行しない方がよいです。
+    //locateLcdPrintf(0,0);
+    //setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    //printfSt7789("c1IRQ OK");
     // ここまで
 
     while(true);

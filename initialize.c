@@ -183,7 +183,7 @@ void showTitle(){
 
     locateLcdPrintf(0,5);
     setColorLcdPrintf(LCD_CYN,LCD_BLK);
-    printfSt7789("ver **.00b"); 
+    printfSt7789("ver d2.00b"); 
 
     locateLcdPrintf(0,10);
     setColorLcdPrintf(LCD_WHT,LCD_BLK);

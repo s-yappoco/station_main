@@ -169,16 +169,35 @@ int main() {
 
     //ジングルサウンド鳴動（車線0でなる）
     playJingleSound();
+    //playDepartureMelody(0);
+
 
     // ためしに車線1で音を鳴らす。
     announceDoorCloseing(1);
-
+    //announceTrainApproach(1);
+    //playDepartureMelody(1);
 
     locateLcdPrintf(0,5);
     printfSt7789("E");
     // デバッグ
    
     volatile uint16_t i = 0;
+
+
+
+
+
+
+
+    ///////////////////////////////////////////
+    // 画面初期表示
+    ///////////////////////////////////////////
+    // 看板表示(車線1)
+	drawBMP_B(&BMP_PLT_UP[0], &BMP_DAT_UP[0], 0 ,line1.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
+    // 看板表示(車線2)
+	drawBMP_B(&BMP_PLT_DOWN[0], &BMP_DAT_DOWN[0], 0 ,line2.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
+
+
     while(true){
         if (isSoundStop(0)){
             locateLcdPrintf(0,5);
@@ -197,21 +216,9 @@ int main() {
         printfSt7789("i=%6d",i);
     }
 
+
     locateLcdPrintf(0,12);
     printfSt7789("outWhile");
-
-
-
-    ///////////////////////////////////////////
-    // 画面初期表示
-    ///////////////////////////////////////////
-    // 看板表示(車線1)
-	drawBMP_B(&BMP_PLT_UP[0], &BMP_DAT_UP[0], 0 ,line1.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
-    // 看板表示(車線2)
-	drawBMP_B(&BMP_PLT_DOWN[0], &BMP_DAT_DOWN[0], 0 ,line2.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
-
-
-
 
     // デバッグ
     // while(true){
