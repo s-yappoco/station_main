@@ -118,6 +118,7 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
             } else if (st->phase_timer > PHASETIME_A){          // ★スクロール案内表示へ移行
                 st->lineState = ST_GUIDANCE_INIT;               // インフォメーションフェーズへ移行
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -147,6 +148,7 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
             } else if (st->phase_timer > PHASETIME_A){          // ★スクロール案内表示へ移行
                 st->lineState = ST_GUIDANCE_INIT;               // インフォメーションフェーズへ移行
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -181,7 +183,8 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-            } else if (st->end_flg){                            // ★スクロール終了
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
+           } else if (st->end_flg){                            // ★スクロール終了
                 st->lineState = ST_JP_DUAL_DISPLAY2;            // 基本表示 その2
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
                 st->start_flg = false;                          // スクロール開始フラグクリア
@@ -207,6 +210,7 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
             } else if (st->end_flg){                            // ★スクロール終了
                 st->lineState = ST_EN_DUAL_DISPLAY2;            // 基本表示 その2
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -222,62 +226,64 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
             break;
 
                 // 基本表示その2 (日本語/英語サイクル)
-            case    ST_JP_DUAL_DISPLAY2:              // 上下二列に日本語表示を行う
-                st->lineState = ST_JP_DUAL_WAIT2;
-                st->end_flg = true;                                 // スクロール終了エンドフラグをセット
-                st->start_flg = false;                              // スクロール開始フラグセット（スクロールスタート）
-                st->language_timer = 0;                             // 英語日本語切り替えタイマークリア
-                break;
+        case    ST_JP_DUAL_DISPLAY2:              // 上下二列に日本語表示を行う
+            st->lineState = ST_JP_DUAL_WAIT2;
+            st->end_flg = true;                                 // スクロール終了エンドフラグをセット
+            st->start_flg = false;                              // スクロール開始フラグセット（スクロールスタート）
+            st->language_timer = 0;                             // 英語日本語切り替えタイマークリア
+            break;
+
+        case    ST_JP_DUAL_WAIT2:                 // 上下二列の日本語表示時間を待つ
+            if (nextTrainFlg){                                  // 次の電車が接近
+                st->lineState = ST_APPROACHING_MELODY_START;    // ★電車接近フェーズへ移行
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
+                st->phase_timer = 0;                            // フェーズ移行タイマークリア
+                st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
+            } else if (st->phase_timer > PHASETIME_A){          // ★マップ表示へ移行
+                st->lineState = ST_JP_MAP_DISPLAY;              // マップフェーズへ移行
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
+                st->phase_timer = 0;                            // フェーズ移行タイマークリア
+                //st->language_timer = 0;                       // 英語日本語切り替えタイマークリア
+            } else if (st->language_timer > LANGUAGETIME){      // ★ 日本語>英語表示切り替え
+                st->lineState = ST_EN_DUAL_DISPLAY2;            // 英語へ切り替え
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
+                st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+            }
+
+            break;
     
-            case    ST_JP_DUAL_WAIT2:                 // 上下二列の日本語表示時間を待つ
-                if (nextTrainFlg){                                  // 次の電車が接近
-                    st->lineState = ST_APPROACHING_MELODY_START;    // ★電車接近フェーズへ移行
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
-                    st->phase_timer = 0;                            // フェーズ移行タイマークリア
-                    st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-                } else if (st->phase_timer > PHASETIME_A){          // ★マップ表示へ移行
-                    st->lineState = ST_JP_MAP_DISPLAY;              // マップフェーズへ移行
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
-                    st->phase_timer = 0;                            // フェーズ移行タイマークリア
-                    //st->language_timer = 0;                       // 英語日本語切り替えタイマークリア
-                } else if (st->language_timer > LANGUAGETIME){      // ★ 日本語>英語表示切り替え
-                    st->lineState = ST_EN_DUAL_DISPLAY2;            // 英語へ切り替え
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
-                    st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-                }
-    
-                break;
-    
-            case    ST_EN_DUAL_DISPLAY2:              // 上下二列に英語表示を行う
-                st->lineState = ST_EN_DUAL_WAIT2;
-                st->end_flg = true;                                 // スクロール終了エンドフラグをセット
-                st->start_flg = false;                              // スクロール開始フラグセット（スクロールスタート）
-                st->language_timer = 0;                             // 英語日本語切り替えタイマークリア
-                break;
-    
-            case    ST_EN_DUAL_WAIT2:                 // 上下二列の英語表示時間を待つ
-                if (nextTrainFlg){                                  // 次の電車が接近
-                    st->lineState = ST_APPROACHING_MELODY_START;    // ★電車接近フェーズへ移行
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
-                    st->phase_timer = 0;                            // フェーズ移行タイマークリア
-                    st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-                } else if (st->phase_timer > PHASETIME_A){          // ★スクロール案内表示へ移行
-                    st->lineState = ST_EN_MAP_DISPLAY;              // マップフェーズへ移行
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグクリア
-                    st->phase_timer = 0;                            // フェーズ移行タイマークリア
-                    //st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-                } else if (st->language_timer > LANGUAGETIME){      // ★ 英語>日本語表示切り替え
-                    st->lineState = ST_JP_DUAL_DISPLAY2;            // インフォメーションフェーズへ移行
-                    st->end_flg = true;                             // スクロール終了エンドフラグをセット
-                    st->start_flg = false;                          // スクロール開始フラグクリア
-                    st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
-                }
-                break;
+        case    ST_EN_DUAL_DISPLAY2:              // 上下二列に英語表示を行う
+            st->lineState = ST_EN_DUAL_WAIT2;
+            st->end_flg = true;                                 // スクロール終了エンドフラグをセット
+            st->start_flg = false;                              // スクロール開始フラグセット（スクロールスタート）
+            st->language_timer = 0;                             // 英語日本語切り替えタイマークリア
+            break;
+
+        case    ST_EN_DUAL_WAIT2:                 // 上下二列の英語表示時間を待つ
+            if (nextTrainFlg){                                  // 次の電車が接近
+                st->lineState = ST_APPROACHING_MELODY_START;    // ★電車接近フェーズへ移行
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
+                st->phase_timer = 0;                            // フェーズ移行タイマークリア
+                st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
+            } else if (st->phase_timer > PHASETIME_A){          // ★スクロール案内表示へ移行
+                st->lineState = ST_EN_MAP_DISPLAY;              // マップフェーズへ移行
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグクリア
+                st->phase_timer = 0;                            // フェーズ移行タイマークリア
+                //st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+            } else if (st->language_timer > LANGUAGETIME){      // ★ 英語>日本語表示切り替え
+                st->lineState = ST_JP_DUAL_DISPLAY2;            // インフォメーションフェーズへ移行
+                st->end_flg = true;                             // スクロール終了エンドフラグをセット
+                st->start_flg = false;                          // スクロール開始フラグクリア
+                st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+            }
+            break;
             
                 // マップ表示
         case    ST_JP_MAP_DISPLAY:               // 日本語＆マップ表示を行う
@@ -294,6 +300,7 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
             } else if (st->phase_timer > PHASETIME_A){          // ★マップ表示へ移行
                 st->lineState = ST_JP_DUAL_DISPLAY1;            // 基本表示へ移行
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -322,6 +329,7 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                 st->start_flg = false;                          // スクロール開始フラグセット（スクロールスタート）
                 st->phase_timer = 0;                            // フェーズ移行タイマークリア
                 st->language_timer = 0;                         // 英語日本語切り替えタイマークリア
+                clear_button_released_flag_lineno(st->line_no); // ボタン押下状態をクリアする
             } else if (st->phase_timer > PHASETIME_A){          // ★マップ表示へ移行
                 st->lineState = ST_EN_DUAL_DISPLAY1;            // 基本表示へ移行
                 st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -366,16 +374,18 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                     st->language_timer = 0;                         // 英語日本語切り替えタイマークリア                    
                 }
              } else {                    // ボタン切り替えモード
-                if(is_button_released_flag_lineno(st->line_no)){    // ボタンが押されたら
+                if(st->phase_timer > SILENT1TIME || is_button_released_flag_lineno(st->line_no)){    // ボタンが押されたら
                     st->lineState = ST_JP_SINGLE_LINE_DISPLAY; 
                     st->end_flg = true;                             // スクロール終了エンドフラグをセット
                     st->start_flg = false;                          // スクロール開始フラグクリア
                     st->language_timer = 0;                         // 英語日本語切り替えタイマークリア 
                     
-                    //  音を止める処理必要
+                    //  音を止める処理
+                    stopSound(st->line_no);
 
-
-                    clear_button_released_flag_lineno(st->line_no);     
+                    // ここでボタンが押されたら、クリアはしない
+                    // 即メロディを鳴らしたいから
+                    // clear_button_released_flag_lineno(st->line_no);     
                 } else if(st->language_timer > LANGUAGETIME){
                     st->lineState = ST_EN_APPROACHING_DISPLAY; 
                     st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -407,16 +417,18 @@ void stationStateCtrl(struct line_st *st, const struct timetable tb[]){
                     st->language_timer = 0;                         // 英語日本語切り替えタイマークリア                    
                 }
              } else {                    // ボタン切り替えモード
-                if(is_button_released_flag_lineno(st->line_no)){    // ボタンが押されたら
+                if(st->phase_timer > SILENT1TIME || is_button_released_flag_lineno(st->line_no)){    // ボタンが押されたら
                     st->lineState = ST_JP_SINGLE_LINE_DISPLAY; 
                     st->end_flg = true;                             // スクロール終了エンドフラグをセット
                     st->start_flg = false;                          // スクロール開始フラグクリア
                     st->language_timer = 0;                         // 英語日本語切り替えタイマークリア 
 
-                    //  音を止める処理必要
-
-
-                    clear_button_released_flag_lineno(st->line_no);     
+                    //  音を止める処理
+                    stopSound(st->line_no);
+                    
+                    // ここでボタンが押されたら、クリアはしない
+                    // 即メロディを鳴らしたいから
+                    // clear_button_released_flag_lineno(st->line_no);     
                 } else if(st->language_timer > LANGUAGETIME){
                     st->lineState = ST_JP_APPROACHING_DISPLAY; 
                     st->end_flg = true;                             // スクロール終了エンドフラグをセット
@@ -533,7 +545,7 @@ bool isTrainApproaching(struct line_st *st,const struct timetable tb[]){
 		// ボタン切り替えモード
 		// ボタン状態取得
 		if (is_button_released_flag_lineno(st->line_no)){
-            clear_button_released_flag_lineno(st->line_no);
+            // clear_button_released_flag_lineno(st->line_no);      // ここでクリアしちゃうと他で取得できない・・・
 			nextTrainFlg = true;
 		} else {
 			nextTrainFlg = false;

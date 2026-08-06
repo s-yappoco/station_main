@@ -331,7 +331,12 @@ bool isSoundStop(uint8_t line_no){
 
 /// @brief AUDIO　ICへミュート出力を行う
 void muteSound(){
-    gpio_put(PIN_AUDIOMUTE,1);      // ミュート出力
+
+    // ミュート制御を行うと、解除したときにポップノイズが発生するため、
+    // ミュート制御は行わないこととした。
+    // ミュートしていなくても、スピーカからノイズが出ないため。
+    // gpio_put(PIN_AUDIOMUTE,1);      // ミュート出力
+    
     // デバッグ
     // locateLcdPrintf(0,1);
     // setColorLcdPrintf(LCD_WHT,LCD_BLK);

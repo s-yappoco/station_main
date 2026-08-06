@@ -131,9 +131,9 @@ int main() {
     ///////////////////////////////////////////
     // タイマー割り込み
     ///////////////////////////////////////////
-    locateLcdPrintf(0,4);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("1234");
+    // locateLcdPrintf(0,4);
+    // setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    // printfSt7789("1234");
 
     
     // 繰り返しタイマーを設定
@@ -144,47 +144,54 @@ int main() {
         while(1);  //停止
     }
     
-    locateLcdPrintf(0,5);
-    printfSt7789("B");
+
+    // core1を起動
+    //core1_initialize();
+
+
+    // //ジングルサウンド鳴動（車線0でなる）
+    // playJingleSound();
+
+    // sleep_ms(5000);
+
+
+    // locateLcdPrintf(0,5);
+    // printfSt7789("B");
     // タイマーを0にリセット
     // clear100msecTimer();
 
-    locateLcdPrintf(0,5);
-    printfSt7789("C");  
+    // locateLcdPrintf(0,5);
+    // printfSt7789("C");  
 
 
     ///////////////////////////////////////////
     // マルチタスク処理実行
     ///////////////////////////////////////////
-    // セマフォを初期化
-    sem_init(&sem, 1, 1);
-    // セマフォの許可を解除
-    sem_release(&sem);
+    // // セマフォを初期化
+    // sem_init(&sem, 1, 1);
+    // // セマフォの許可を解除
+    // sem_release(&sem);
 
     // core1で動作させる関数を実行する。
-    multicore_launch_core1(core1_main);
+    // multicore_launch_core1(core1_main);
 
-    locateLcdPrintf(0,5);
-    printfSt7789("D");
+    // locateLcdPrintf(0,5);
+    // printfSt7789("D");
 
-    //ジングルサウンド鳴動（車線0でなる）
-    playJingleSound();
-    //playDepartureMelody(0);
+    // sleep_ms(200);
+    // //ジングルサウンド鳴動（車線0でなる）
+    // playJingleSound();
+    // //playDepartureMelody(0);
 
+    // sleep_ms(2000);
 
     // ためしに車線1で音を鳴らす。
-    announceDoorCloseing(1);
+    //announceDoorCloseing(1);
     //announceTrainApproach(1);
     //playDepartureMelody(1);
 
-    locateLcdPrintf(0,5);
-    printfSt7789("E");
-    // デバッグ
-   
-    volatile uint16_t i = 0;
-
-
-
+    // locateLcdPrintf(0,5);
+    // printfSt7789("E");
 
 
 
@@ -198,27 +205,10 @@ int main() {
 	drawBMP_B(&BMP_PLT_DOWN[0], &BMP_DAT_DOWN[0], 0 ,line2.posy, SIGNBOARDXSIZE , SIGNBOARDYSIZE);
 
 
-    while(true){
-        if (isSoundStop(0)){
-            locateLcdPrintf(0,5);
-            setColorLcdPrintf(LCD_WHT,LCD_BLK);
-            locateLcdPrintf(0,12);
-            printfSt7789("stopSound1");
-        }
-        if (isSoundStop(1)){
-            locateLcdPrintf(0,5);
-            setColorLcdPrintf(LCD_WHT,LCD_BLK);
-            locateLcdPrintf(0,13);
-            printfSt7789("stopSound2");
-        }
-        locateLcdPrintf(0,11);
-        i++;
-        printfSt7789("i=%6d",i);
-    }
 
-
-    locateLcdPrintf(0,12);
-    printfSt7789("outWhile");
+    // デバッグ
+    // locateLcdPrintf(0,12);
+    // printfSt7789("outWhile");
 
     // デバッグ
     // while(true){
@@ -1151,13 +1141,13 @@ void doAnyProcess(){
         }
     }
 
-    // デバッグ：車線1,2のステータス表示
-    locateLcdPrintf(0,7);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("%2d:%2d/%4d/%4d",1,line1.lineState, line1.phase_timer,line1.language_timer);
-    locateLcdPrintf(0,8);
-    setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("%2d:%2d/%4d/%4d",2,line2.lineState, line2.phase_timer,line2.language_timer);
+    // // デバッグ：車線1,2のステータス表示
+    // locateLcdPrintf(0,7);
+    // setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    // printfSt7789("%2d:%2d/%4d/%4d",1,line1.lineState, line1.phase_timer,line1.language_timer);
+    // locateLcdPrintf(0,8);
+    // setColorLcdPrintf(LCD_WHT,LCD_BLK);
+    // printfSt7789("%2d:%2d/%4d/%4d",2,line2.lineState, line2.phase_timer,line2.language_timer);
 
     // デバッグ：現在時刻表示
     time_disp = getClock();

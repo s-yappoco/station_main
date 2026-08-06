@@ -46,8 +46,17 @@ void check_buttons() {
                 buttons[i].current_state = current_pin_state;
 
                 // 前回の状態が押された状態で、現在が離された状態ならフラグを立てる
-                if (buttons[i].prev_state == true && buttons[i].current_state == false) {
+                if (buttons[i].prev_state == false && buttons[i].current_state == true) {
+                // if (buttons[i].prev_state == true && buttons[i].current_state == false) {
                     buttons[i].button_released_flag = true;
+                
+                    // デバッグ
+                    // if(i == 0)
+                    //     gpio_put(LED_PIN,1);
+                    // else
+                    //     gpio_put(LED_PIN,0);
+
+
                 }
             }
         }
@@ -77,9 +86,18 @@ void clear_button_released_flag(uint8_t button_id) {
 /// @return どちらかのボタンが離されたときにtrue
 bool is_button_released_flag_lineno(uint8_t line_no){
     if(line_no == 0){
+        // デバッグ
+        if(buttons[0].button_released_flag || buttons[2].button_released_flag){
+            gpio_put(LED_PIN,1);        // LED ON
+        }
+
         // 車線1対応のボタンが離された
         return (buttons[0].button_released_flag || buttons[2].button_released_flag);
     } else {
+        // デバッグ
+        if(buttons[1].button_released_flag || buttons[3].button_released_flag){
+            gpio_put(LED_PIN,0);        // LED OFF
+        }        
         // 車線2対応のボタンが離された
         return (buttons[1].button_released_flag || buttons[3].button_released_flag);
     }

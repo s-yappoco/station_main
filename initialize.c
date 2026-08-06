@@ -18,7 +18,7 @@
 //#include "station_signboard.h"
 //#include "trainTimetable.h"
 //#include "stname.h"
-//#include "core1_sound.h"
+#include "core1_sound.h"
 //#include "sounddata.h"
 #include "button.h"
 #include "initialize.h"
@@ -48,20 +48,33 @@ void initializeSettings(){
     // ATOSモード設定
     setAtosMode();
 
-    // 初期画面表示時間中、LEDを点滅させます
-    uint16_t i;
-    for (i=0; i<10; i++){
-        sleep_ms(200);
-        gpio_put(LED_PIN,1);
-        sleep_ms(200);
-        gpio_put(LED_PIN,0);
+    // core1を起動
+    core1_initialize();
+
+    // ジングル鳴動(line0)
+    sleep_ms(200);
+    playJingleSound();
+    sleep_ms(2000);
+
+    // 音が鳴り止むまでwaitする
+    while(true){
+        if (isSoundStop(0)){
+            break;
+        }
     }
+    // 初期画面表示時間中、LEDを点滅させます
+    // for (uint16_t i=0; i<10; i++){
+    //     sleep_ms(200);
+    //     gpio_put(LED_PIN,1);
+    //     sleep_ms(200);
+    //     gpio_put(LED_PIN,0);
+    // }
 
     // 画面を黒で塗りつぶす
     fillScreenSt7789(LCD_BLK); // BLACK
 
     // ボタンフラグクリア
-    for (i=0; i<MAX_BUTTONS; i++){
+    for (uint16_t i=0; i<MAX_BUTTONS; i++){
         clear_button_released_flag(i);
     }
 }
@@ -127,7 +140,8 @@ void gpio_initialize(){
     gpio_pull_up(PIN_APPBTN4);      // ボタン入力ピンをpull up設定
 
     // 初期値出力
-    gpio_put(PIN_AUDIOMUTE,1);          // ミュート出力
+    //　gpio_put(PIN_AUDIOMUTE,1);          // ミュート出力
+    gpio_put(PIN_AUDIOMUTE,0);          // ミュート解除
     gpio_put(PIN_BLK,1);                // ディスプレイバックライト点灯
 
     // スタンダードIO初期設定
@@ -174,7 +188,7 @@ void showTitle(){
     setColorLcdPrintf(LCD_YEL,LCD_GRY);
     printfSt7789("Train Info     ");
     locateLcdPrintf(0,2);
-    printfSt7789(" Display system");
+    printfSt7789("Display system2");
 
     locateLcdPrintf(0,3);
     setColorLcdPrintf(LCD_GRN,LCD_BLK);
@@ -183,11 +197,11 @@ void showTitle(){
 
     locateLcdPrintf(0,5);
     setColorLcdPrintf(LCD_CYN,LCD_BLK);
-    printfSt7789("ver d2.00b"); 
+    printfSt7789("ver 2.00a"); 
 
     locateLcdPrintf(0,10);
     setColorLcdPrintf(LCD_WHT,LCD_BLK);
-    printfSt7789("@2025  yamapy"); 
+    printfSt7789("@2026  yamapy"); 
 
     locateLcdPrintf(0,14);
     setColorLcdPrintf(LCD_WHT,LCD_BLK);
@@ -215,4 +229,22 @@ void setAtosMode(){
         setColorLcdPrintf(LCD_RED,LCD_BLK);
 		printfSt7789("Button chg mode"); 		
     }
+}
+
+/// @brief core1イニシャル処理
+/// core1を起動する
+void core1_initialize(){
+
+   ///////////////////////////////////////////
+    // マルチタスク処理実行
+    ///////////////////////////////////////////
+    // セマフォを初期化
+    sem_init(&sem, 1, 1);
+    // セマフォの許可を解除
+    sem_release(&sem);
+
+    // core1で動作させる関数を実行する。
+    multicore_launch_core1(core1_main);
+
+
 }

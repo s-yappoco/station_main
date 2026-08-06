@@ -25,5 +25,9 @@ void showTitle();
 /// @brief ATOSモード切替
 void setAtosMode();
 
+/// @brief core1イニシャル処理
+/// core1を起動する
+void core1_initialize();
+
 #endif // _INITIALIZE_H
 
